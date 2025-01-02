@@ -21,6 +21,15 @@ def create_app():
 
     # 注册蓝图
     from app.routes.main import main_bp
+    from app.routes.auth import auth_bp
+    
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
 
-    return app 
+    return app
+
+# 添加用户加载函数
+@login_manager.user_loader
+def load_user(id):
+    from app.models.user import User
+    return User.query.get(int(id)) 
