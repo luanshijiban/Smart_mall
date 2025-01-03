@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User
-from app.forms.auth import LoginForm
+from app.forms.auth import LoginForm, RegistrationForm
 from app import db
 
 auth_bp = Blueprint('auth', __name__)
@@ -32,32 +32,20 @@ def logout():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-        real_name = request.form.get('real_name')
-        
-        # 检查用户名是否已存在
-        if User.query.filter_by(username=username).first():
-            flash('用户名已存在')
-            return render_template('auth/register.html')
-            
-        # 创建新用户
-        user = User(
-            username=username,
-            phone=phone,
-            address=address,
-            real_name=real_name
-        )
-        user.set_password(password)
-        
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User()
+        user.username = form.username.data
+        user.set_password(form.password.data)
+        user.real_name = form.realname.data
+        user.phone = form.phone.data
+        user.address = form.address.data
         db.session.add(user)
         db.session.commit()
-        
-        # 注册后自动登录
-        login_user(user)
-        return redirect(url_for('main.index'))
-        
-    return render_template('auth/register.html') 
+        flash('注册成功！请登录', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/register.html', form=form) 

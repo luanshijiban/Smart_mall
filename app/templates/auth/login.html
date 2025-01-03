@@ -1,48 +1,100 @@
 {% extends "base.html" %}
 
+{% block title %}登录 - 智慧电脑商城{% endblock %}
+
+{% block styles %}
+<style>
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.auth-card {
+    padding: 2rem;
+}
+
+.auth-title {
+    font-family: "华文行楷", "楷体", serif;
+    font-size: 2rem;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    letter-spacing: 3px;
+}
+
+.form-floating {
+    margin-bottom: 1rem;
+}
+
+.form-floating > .form-control {
+    padding: 1rem 0.75rem;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-top: 1rem;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-links a {
+    color: #3498db;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                用户登录
+<div class="auth-container">
+    <div class="card auth-card">
+        <h2 class="auth-title">用户登录</h2>
+        
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-floating">
+                {{ form.username(class="form-control", placeholder="用户名") }}
+                <label for="username">用户名</label>
+                {% for error in form.username.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
             </div>
-            <div class="card-body">
-                <form method="POST" novalidate>
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control") }}
-                        {% if form.username.errors %}
-                            {% for error in form.username.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control") }}
-                        {% if form.password.errors %}
-                            {% for error in form.password.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div class="mb-3 form-check">
-                        {{ form.remember_me(class="form-check-input") }}
-                        {{ form.remember_me.label(class="form-check-label") }}
-                    </div>
-                    {% with messages = get_flashed_messages() %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-danger">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    {{ form.submit(class="btn btn-primary") }}
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-link">注册新用户</a>
-                </form>
+
+            <div class="form-floating">
+                {{ form.password(class="form-control", placeholder="密码") }}
+                <label for="password">密码</label>
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
             </div>
+
+            <div class="form-check mb-3">
+                {{ form.remember_me(class="form-check-input") }}
+                <label class="form-check-label" for="remember_me">
+                    记住我
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">
+                登录
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{{ url_for('auth.register') }}">还没有账号？立即注册</a>
         </div>
     </div>
 </div>

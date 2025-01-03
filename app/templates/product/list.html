@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}浏览商品 - 智慧电脑商城{% endblock %}
+
+{% block styles %}
+<style>
+.product-container {
+    margin: 2rem auto;
+}
+
+.filter-card {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+.filter-title {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.product-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-img {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.product-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.product-price {
+    color: #e74c3c;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.product-maker {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.page-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-input {
+    width: 60px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-container">
+    <!-- 分类筛选 -->
+    <div class="card filter-card">
+        <h3 class="filter-title">选择分类</h3>
+        <form method="GET" class="d-flex gap-3">
+            <select name="category" class="form-select" onchange="this.form.submit()">
+                <option value="">所有分类</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" 
+                        {% if selected_category == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="product-grid">
+        {% for product in products.items %}
+        <div class="card product-card">
+            <img src="{{ product.image_url or url_for('static', filename='images/default.png') }}" 
+                 class="product-img" alt="{{ product.name }}">
+            <div class="card-body">
+                <h5 class="product-title">{{ product.name }}</h5>
+                <p class="product-maker">{{ product.manufacturer }}</p>
+                <p class="product-price">￥{{ "%.2f"|format(product.price) }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('product.detail', id=product.id) }}" 
+                       class="btn btn-outline-primary btn-sm">查看详情</a>
+                    {% if current_user.is_authenticated %}
+                    <form action="{{ url_for('cart.add', product_id=product.id) }}" method="POST">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            加入购物车
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination-container">
+        <!-- 上一页 -->
+        <form method="GET" class="page-form">
+            {% if products.has_prev %}
+            <input type="hidden" name="page" value="{{ products.prev_num }}">
+            <button type="submit" class="btn btn-outline-primary">上一页</button>
+            {% else %}
+            <button type="submit" class="btn btn-outline-primary" disabled>上一页</button>
+            {% endif %}
+        </form>
+
+        <!-- 页码信息 -->
+        <span class="text-muted">
+            第 {{ products.page }} 页 / 共 {{ products.pages }} 页
+        </span>
+
+        <!-- 下一页 -->
+        <form method="GET" class="page-form">
+            {% if products.has_next %}
+            <input type="hidden" name="page" value="{{ products.next_num }}">
+            <button type="submit" class="btn btn-outline-primary">下一页</button>
+            {% else %}
+            <button type="submit" class="btn btn-outline-primary" disabled>下一页</button>
+            {% endif %}
+        </form>
+
+        <!-- 跳转页面 -->
+        <form method="GET" class="page-form">
+            <label>跳转到：</label>
+            <input type="number" name="page" class="form-control page-input" 
+                   min="1" max="{{ products.pages }}">
+            <button type="submit" class="btn btn-outline-primary">确定</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

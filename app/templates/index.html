@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}智慧商城 - 首页{% endblock %}
+
+{% block styles %}
+<style>
+.hero-section {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 4rem 1rem;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-family: "华文行楷", "楷体", serif;
+    font-size: 4rem;
+    color: #FFD700;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 1.5s ease-out;
+    letter-spacing: 5px;
+}
+
+.hero-subtitle {
+    font-family: "幼圆", "Microsoft YaHei", sans-serif;
+    font-size: 1.75rem;
+    color: #E0FFFF;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+    margin-bottom: 3rem;
+    animation: fadeIn 2s ease-out;
+    letter-spacing: 2px;
+}
+
+.cta-button {
+    padding: 1rem 2.5rem;
+    font-size: 1.25rem;
+    font-family: "黑体", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #00BFFF, #1E90FF);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    animation: fadeInUp 1.5s ease-out;
+    letter-spacing: 2px;
+}
+
+.cta-button:hover {
+    background: linear-gradient(135deg, #1E90FF, #4169E1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(30, 144, 255, 0.5);
+    color: white;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">欢迎光临智慧商城</h1>
+        <p class="hero-subtitle">为您提供优质的产品和服务</p>
+        <a href="{{ url_for('product.list') }}" class="cta-button">立即选购</a>
+    </div>
+</div>
+{% endblock %} 

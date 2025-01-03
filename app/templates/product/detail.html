@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - 智慧电脑商城{% endblock %}
+
+{% block styles %}
+<style>
+.detail-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.detail-card {
+    padding: 2rem;
+}
+
+.product-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.product-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.product-maker {
+    color: #7f8c8d;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.product-price {
+    color: #e74c3c;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.product-sku {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.action-buttons {
+    margin-top: auto;
+    display: flex;
+    gap: 1rem;
+}
+
+.product-description {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.description-title {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.description-content {
+    color: #34495e;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+@media (max-width: 768px) {
+    .product-header {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-image {
+        height: 300px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="card detail-card">
+        <div class="product-header">
+            <img src="{{ product.image_url or url_for('static', filename='images/default.png') }}" 
+                 class="product-image" alt="{{ product.name }}">
+            
+            <div class="product-info">
+                <h1 class="product-title">{{ product.name }}</h1>
+                <p class="product-maker">制造商：{{ product.manufacturer }}</p>
+                <p class="product-price">￥{{ "%.2f"|format(product.price) }}</p>
+                <p class="product-sku">商品编号：{{ product.sku }}</p>
+                
+                {% if current_user.is_authenticated %}
+                <div class="action-buttons">
+                    <form action="{{ url_for('cart.add', product_id=product.id) }}" method="POST">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="material-icons align-middle">shopping_cart</i>
+                            加入购物车
+                        </button>
+                    </form>
+                    <a href="{{ url_for('product.list') }}" class="btn btn-outline-primary btn-lg">
+                        继续购物
+                    </a>
+                </div>
+                {% else %}
+                <div class="action-buttons">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                        登录后购买
+                    </a>
+                    <a href="{{ url_for('product.list') }}" class="btn btn-outline-primary btn-lg">
+                        继续购物
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="product-description">
+            <h2 class="description-title">商品描述</h2>
+            <div class="description-content">
+                {{ product.description or '暂无商品描述' }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}我的订单 - 智慧电脑商城{% endblock %}
+
+{% block styles %}
+<style>
+.order-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.order-card {
+    padding: 2rem;
+}
+
+.order-title {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.order-item {
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.order-number {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.order-date {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.order-content {
+    padding: 1.5rem;
+}
+
+.order-products {
+    margin-bottom: 1.5rem;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-name {
+    color: #2c3e50;
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.product-name:hover {
+    color: #3498db;
+}
+
+.product-price {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.product-quantity {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e1e8ed;
+}
+
+.order-total {
+    color: #e74c3c;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.order-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+.status-pending {
+    background-color: #ffeaa7;
+    color: #d35400;
+}
+
+.status-completed {
+    background-color: #55efc4;
+    color: #00b894;
+}
+
+.empty-order {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-order-icon {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .order-footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-container">
+    <div class="card order-card">
+        <h2 class="order-title">我的订单</h2>
+        
+        {% if orders %}
+        <div class="order-list">
+            {% for order in orders %}
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-number">订单号：{{ order.order_number }}</span>
+                    <span class="order-date">下单时间：{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </div>
+                
+                <div class="order-content">
+                    <div class="order-products">
+                        {% for item in order.items %}
+                        <div class="product-item">
+                            <img src="{{ item.product.image_url or url_for('static', filename='images/default.png') }}" 
+                                 class="product-image" alt="{{ item.product.name }}">
+                            <div class="product-info">
+                                <a href="{{ url_for('product.detail', id=item.product.id) }}" 
+                                   class="product-name">{{ item.product.name }}</a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="product-price">￥{{ "%.2f"|format(item.price) }}</span>
+                                    <span class="product-quantity">x{{ item.quantity }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="order-footer">
+                    <div class="order-total">
+                        总计：￥{{ "%.2f"|format(order.total_amount) }}
+                    </div>
+                    <span class="order-status {{ 'status-completed' if order.status == 'completed' else 'status-pending' }}">
+                        {{ '已完成' if order.status == 'completed' else '待处理' }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-order">
+            <i class="material-icons empty-order-icon">receipt_long</i>
+            <h3>暂无订单记录</h3>
+            <p class="text-muted">您还没有任何订单，快去购物吧！</p>
+            <a href="{{ url_for('product.list') }}" class="btn btn-primary mt-3">
+                去购物
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

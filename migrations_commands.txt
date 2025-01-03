@@ -1,0 +1,8 @@
+# 初始化迁移
+flask db init
+
+# 创建迁移脚本
+flask db migrate -m "initial migration"
+
+# 应用迁移
+flask db upgrade 
