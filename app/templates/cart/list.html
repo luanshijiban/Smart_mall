@@ -1,192 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}购物车 - 智慧电脑商城{% endblock %}
-
-{% block styles %}
-<style>
-.cart-container {
-    max-width: 1000px;
-    margin: 2rem auto;
-}
-
-.cart-card {
-    padding: 2rem;
-}
-
-.cart-title {
-    font-size: 1.5rem;
-    color: #2c3e50;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.cart-table {
-    margin-bottom: 2rem;
-}
-
-.cart-table th {
-    background-color: #3498db;
-    color: white;
-    font-weight: normal;
-}
-
-.product-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.product-name {
-    color: #2c3e50;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.product-name:hover {
-    color: #3498db;
-}
-
-.quantity-control {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-.quantity-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.quantity-display {
-    min-width: 40px;
-    text-align: center;
-}
-
-.cart-summary {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 2rem;
-    padding: 1rem 0;
-    border-top: 1px solid #eee;
-}
-
-.total-price {
-    font-size: 1.5rem;
-    color: #e74c3c;
-    font-weight: bold;
-}
-
-.empty-cart {
-    text-align: center;
-    padding: 3rem 1rem;
-}
-
-.empty-cart-icon {
-    font-size: 4rem;
-    color: #bdc3c7;
-    margin-bottom: 1rem;
-}
-
-@media (max-width: 768px) {
-    .cart-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .cart-summary {
-        flex-direction: column;
-        gap: 1rem;
-    }
-}
-</style>
-{% endblock %}
+{% block title %}购物车 - 智慧商城{% endblock %}
 
 {% block content %}
-<div class="cart-container">
-    <div class="card cart-card">
-        <h2 class="cart-title">我的购物车</h2>
-        
-        {% if cart_items %}
-        <div class="table-responsive">
-            <table class="table cart-table">
-                <thead>
-                    <tr>
-                        <th>商品图片</th>
-                        <th>商品名称</th>
-                        <th>单价</th>
-                        <th>数量</th>
-                        <th>小计</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>
-                            <img src="{{ item.product.image_url or url_for('static', filename='images/default.png') }}" 
-                                 class="product-image" alt="{{ item.product.name }}">
-                        </td>
-                        <td>
-                            <a href="{{ url_for('product.detail', id=item.product.id) }}" 
-                               class="product-name">{{ item.product.name }}</a>
-                        </td>
-                        <td>￥{{ "%.2f"|format(item.product.price) }}</td>
-                        <td>
-                            <form action="{{ url_for('cart.update', product_id=item.product.id) }}" 
-                                  method="POST" class="quantity-control">
-                                <button type="submit" name="quantity" value="{{ item.quantity - 1 }}" 
-                                        class="btn btn-outline-primary quantity-btn"
-                                        {{ 'disabled' if item.quantity <= 1 }}>
-                                    -
-                                </button>
-                                <span class="quantity-display">{{ item.quantity }}</span>
-                                <button type="submit" name="quantity" value="{{ item.quantity + 1 }}" 
-                                        class="btn btn-outline-primary quantity-btn">
-                                    +
-                                </button>
-                            </form>
-                        </td>
-                        <td>￥{{ "%.2f"|format(item.product.price * item.quantity) }}</td>
-                        <td>
-                            <form action="{{ url_for('cart.remove', product_id=item.product.id) }}" 
-                                  method="POST" onsubmit="return confirm('确定要删除这件商品吗？')">
-                                <button type="submit" class="btn btn-danger btn-sm">删除</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="cart-summary">
-            <div class="total-price">
-                总计：￥{{ "%.2f"|format(total_price) }}
+<div class="container mt-4">
+    <h2>我的购物车</h2>
+    {% if cart_items %}
+        <div class="cart-items">
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <div class="product-info">
+                    <h5>{{ item.product.name }}</h5>
+                    <p>单价：¥{{ "%.2f"|format(item.product.price) }}</p>
+                </div>
+                <div class="quantity">
+                    <form method="POST" action="{{ url_for('cart.update_cart') }}">
+                        <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                        <button type="submit" class="btn btn-sm btn-primary">更新</button>
+                    </form>
+                </div>
             </div>
-            <form action="{{ url_for('order.create') }}" method="POST">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    结算
-                </button>
-            </form>
+            {% endfor %}
         </div>
-        {% else %}
-        <div class="empty-cart">
-            <i class="material-icons empty-cart-icon">shopping_cart</i>
-            <h3>购物车是空的</h3>
-            <p class="text-muted">快去选购心仪的商品吧！</p>
-            <a href="{{ url_for('product.list') }}" class="btn btn-primary mt-3">
-                去购物
-            </a>
-        </div>
-        {% endif %}
-    </div>
+    {% else %}
+        <p>购物车是空的</p>
+    {% endif %}
 </div>
 {% endblock %} 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}智慧电脑商城{% endblock %}</title>
+    <title>{% block title %}智慧商城{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Material Icons -->
@@ -11,12 +11,32 @@
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     {% block styles %}{% endblock %}
+    <style>
+        /* 增加导航栏高度并移除阴影 */
+        .navbar {
+            min-height: 70px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            box-shadow: none;  /* 移除阴影 */
+            border: none;      /* 移除边框 */
+        }
+        
+        /* 调整主容器上边距，与导航栏高度对应 */
+        main.container {
+            margin-top: 90px !important;
+        }
+
+        /* 确保导航栏背景色完全不透明 */
+        .navbar-dark.bg-primary {
+            background-color: #0d6efd !important;  /* Bootstrap 主色 */
+        }
+    </style>
 </head>
 <body>
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">智慧电脑商城</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">智慧商城</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -31,14 +51,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('product.search') }}">查询电脑</a>
                     </li>
-                    {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('cart.list') }}">购物车</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('order.list') }}">我的订单</a>
+                        <a class="nav-link" href="{{ url_for('order.view_orders') }}">我的订单</a>
                     </li>
-                    {% endif %}
                 </ul>
                 <div class="navbar-nav">
                     {% if current_user.is_authenticated %}
@@ -52,7 +70,7 @@
                             <li><a class="dropdown-item" href="{{ url_for('cart.list') }}">
                                 <span class="material-icons">shopping_cart</span> 购物车
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('order.list') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('order.view_orders') }}">
                                 <span class="material-icons">receipt_long</span> 我的订单
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -71,7 +89,7 @@
     </nav>
 
     <!-- 主要内容 -->
-    <main class="container my-4">
+    <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

@@ -4,26 +4,41 @@
 
 {% block styles %}
 <style>
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
 .hero-section {
-    min-height: calc(100vh - 72px);
+    min-height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     position: relative;
-    padding: 4rem 1rem;
+    background: url('/static/images/back.png') center/cover no-repeat fixed;
+    margin: 0;
+    padding: 0;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-top: -90px;
 }
 
 .hero-section::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
     z-index: 1;
+    width: 100vw;
+    height: 100vh;
 }
 
 .hero-content {
@@ -97,6 +112,47 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.auth-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3;
+    display: flex;
+    gap: 15px;
+}
+
+.auth-button {
+    padding: 8px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: "Microsoft YaHei", sans-serif;
+}
+
+.login-btn {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+.login-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.register-btn {
+    background: #1E90FF;
+    border: 2px solid #1E90FF;
+    color: #fff;
+}
+
+.register-btn:hover {
+    background: #4169E1;
+    border-color: #4169E1;
+    color: #fff;
 }
 </style>
 {% endblock %}

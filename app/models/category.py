@@ -9,6 +9,9 @@ class Category(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # 关系
+    products = db.relationship('Product', back_populates='category')
+
     def __repr__(self):
         return f'<Category {self.name}>'
 

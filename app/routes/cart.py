@@ -6,7 +6,13 @@ from app import db
 
 cart_bp = Blueprint('cart', __name__)
 
-@cart_bp.route('/cart/add/<string:product_id>', methods=['POST'])
+@cart_bp.route('/list')
+@login_required
+def list():
+    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    return render_template('cart/list.html', cart_items=cart_items)
+
+@cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
@@ -26,9 +32,10 @@ def add_to_cart(product_id):
         db.session.add(cart_item)
     
     db.session.commit()
-    return redirect(url_for('cart.view_cart'))
+    flash('商品已添加到购物车')
+    return redirect(url_for('cart.list'))
 
-@cart_bp.route('/cart/update', methods=['POST'])
+@cart_bp.route('/update', methods=['POST'])
 @login_required
 def update_cart():
     product_id = request.form.get('product_id')
@@ -45,7 +52,7 @@ def update_cart():
     cart_item.quantity = quantity
     db.session.commit()
     
-    return redirect(url_for('cart.view_cart'))
+    return redirect(url_for('cart.list'))
 
 @cart_bp.route('/cart/delete/<string:product_id>', methods=['POST'])
 @login_required

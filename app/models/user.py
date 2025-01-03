@@ -13,8 +13,8 @@ class User(UserMixin, db.Model):
     real_name = db.Column(db.String(60))
     
     # 关系
-    cart_items = db.relationship('CartItem', back_populates='user')
-    orders = db.relationship('Order', backref='user')
+    cart_items = db.relationship('CartItem', back_populates='user', cascade='all, delete-orphan')
+    orders = db.relationship('Order', back_populates='user', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

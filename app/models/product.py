@@ -1,7 +1,6 @@
 from app import db
 from datetime import datetime
 from sqlalchemy import Numeric
-from .category import Category
 
 class Product(db.Model):
     __tablename__ = 'product'
@@ -18,9 +17,9 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # 关系
+    # 关系 - 使用字符串引用而不是直接导入
     category = db.relationship('Category', back_populates='products')
-    cart_items = db.relationship('CartItem', back_populates='product')
+    cart_items = db.relationship('CartItem', back_populates='product', cascade='all, delete-orphan')
     order_items = db.relationship('OrderItem', back_populates='product')
 
     def __repr__(self):

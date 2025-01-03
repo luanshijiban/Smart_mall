@@ -15,7 +15,8 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    user = db.relationship('User', backref='orders')
+    # 关系
+    user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
     
     def __repr__(self):

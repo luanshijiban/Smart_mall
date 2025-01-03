@@ -6,7 +6,7 @@ USE smart_mall;
 CREATE TABLE user (
     id INT NOT NULL AUTO_INCREMENT,
     username VARCHAR(30) NOT NULL UNIQUE,
-    password_hash VARCHAR(128) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     address VARCHAR(100),
     real_name VARCHAR(60),
@@ -80,6 +80,14 @@ CREATE TABLE order_item (
     FOREIGN KEY (order_id) REFERENCES `order`(id),
     FOREIGN KEY (product_id) REFERENCES product(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+select * from user;
+select * from category; 
+select * from product;
+select * from cart; 
+select * from `order`;
+select * from order_item;
+
 
 -- 插入一些测试数据
 -- 插入测试用户

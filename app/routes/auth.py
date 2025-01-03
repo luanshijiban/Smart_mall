@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User
 from app.forms.auth import LoginForm, RegistrationForm
 from app import db
-
-auth_bp = Blueprint('auth', __name__)
+from . import auth_bp
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -37,12 +36,13 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User()
-        user.username = form.username.data
+        user = User(
+            username=form.username.data,
+            real_name=form.realname.data,
+            phone=form.phone.data,
+            address=form.address.data
+        )
         user.set_password(form.password.data)
-        user.real_name = form.realname.data
-        user.phone = form.phone.data
-        user.address = form.address.data
         db.session.add(user)
         db.session.commit()
         flash('注册成功！请登录', 'success')
