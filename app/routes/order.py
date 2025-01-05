@@ -47,4 +47,4 @@ def create_order():
 @login_required
 def view_orders():
     orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-    return render_template('order/orders.html', orders=orders) 
+    return render_template('order/list.html', orders=orders) 

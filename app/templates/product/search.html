@@ -1,159 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}商品搜索 - 智慧电脑商城{% endblock %}
-
-{% block styles %}
-<style>
-.search-container {
-    max-width: 800px;
-    margin: 2rem auto;
-}
-
-.search-card {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.search-title {
-    font-size: 1.5rem;
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.search-tips {
-    background: rgba(52, 152, 219, 0.1);
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-bottom: 1.5rem;
-    color: #2c3e50;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    border-left: 4px solid #3498db;
-}
-
-.search-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.search-input-group {
-    display: flex;
-    gap: 1rem;
-}
-
-.search-input {
-    flex-grow: 1;
-}
-
-.radio-group {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin: 1rem 0;
-}
-
-.radio-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.search-results {
-    margin-top: 2rem;
-}
-
-@media (max-width: 576px) {
-    .search-input-group {
-        flex-direction: column;
-    }
-    
-    .radio-group {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-}
-</style>
-{% endblock %}
+{% block title %}搜索商品 - 智慧商城{% endblock %}
 
 {% block content %}
-<div class="search-container">
-    <div class="card search-card">
-        <h2 class="search-title">电脑查询</h2>
-        
-        <div class="search-tips">
-            <p class="mb-2"><strong>查询说明：</strong></p>
-            <ul class="mb-0">
-                <li>可以通过电脑标识号、名称或价格范围进行查询</li>
-                <li>电脑名称支持模糊查询</li>
-                <li>价格查询格式：最低价格-最高价格（如：897.98-10000）</li>
-            </ul>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <form class="d-flex" method="GET" action="{{ url_for('product.search') }}">
+                <input class="form-control me-2" type="search" name="keyword" placeholder="搜索商品..." value="{{ keyword }}">
+                <button class="btn btn-outline-primary" type="submit">搜索</button>
+            </form>
         </div>
-
-        <form method="GET" action="{{ url_for('product.search') }}" class="search-form">
-            <div class="search-input-group">
-                <input type="text" name="keyword" class="form-control search-input" 
-                       placeholder="请输入查询关键词..." value="{{ request.args.get('keyword', '') }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="material-icons align-middle">search</i>
-                    搜索
-                </button>
-            </div>
-
-            <div class="radio-group">
-                <label class="radio-label">
-                    <input type="radio" name="type" value="sku" 
-                           {% if request.args.get('type') == 'sku' %}checked{% endif %}>
-                    电脑标识号
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="type" value="name" 
-                           {% if request.args.get('type') == 'name' %}checked{% endif %}>
-                    电脑名称
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="type" value="price" 
-                           {% if request.args.get('type', 'price') == 'price' %}checked{% endif %}>
-                    电脑价格
-                </label>
-            </div>
-        </form>
     </div>
 
-    {% if products %}
-    <div class="search-results">
-        <div class="product-grid">
-            {% for product in products %}
-            <div class="card product-card">
-                <img src="{{ product.image_url or url_for('static', filename='images/default.png') }}" 
-                     class="product-img" alt="{{ product.name }}">
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">暂无图片</div>
+                {% endif %}
+                
                 <div class="card-body">
-                    <h5 class="product-title">{{ product.name }}</h5>
-                    <p class="product-maker">{{ product.manufacturer }}</p>
-                    <p class="product-price">￥{{ "%.2f"|format(product.price) }}</p>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.category.name }}</p>
+                    <p class="card-text">¥{{ "%.2f"|format(product.price) }}</p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url_for('product.detail', id=product.id) }}" 
-                           class="btn btn-outline-primary btn-sm">查看详情</a>
+                        <a href="{{ url_for('product.detail', id=product.id) }}" class="btn btn-outline-primary">查看详情</a>
                         {% if current_user.is_authenticated %}
-                        <form action="{{ url_for('cart.add', product_id=product.id) }}" method="POST">
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                加入购物车
-                            </button>
+                        <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-primary">加入购物车</button>
                         </form>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">登录后购买</a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-center">未找到相关商品</p>
+        </div>
+        {% endfor %}
     </div>
-    {% elif request.args.get('keyword') %}
-    <div class="alert alert-info text-center">
-        未找到符合条件的商品
-    </div>
-    {% endif %}
 </div>
 {% endblock %} 
