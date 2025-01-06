@@ -4,30 +4,74 @@
 
 {% block content %}
 <div class="container mt-4">
-    <!-- 添加返回按钮（仅在搜索结果页显示） -->
-    {% if keyword %}
-    <div class="row mb-3">
-        <div class="col">
-            <a href="{{ url_for('product.list') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> 浏览更多商品
-            </a>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- 搜索表单 -->
+    <!-- 分类筛选 -->
     <div class="row mb-4">
         <div class="col">
-            <form class="d-flex" method="GET" action="{{ url_for('product.search') }}">
-                <input class="form-control me-2" type="search" name="keyword" placeholder="搜索商品..." value="{{ keyword }}">
-                <button class="btn btn-outline-primary" type="submit">搜索</button>
-            </form>
+            <!-- 第一行：全部商品和搜索框 -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <a href="{{ url_for('product.list', keyword=keyword) }}" 
+                       class="btn btn-outline-primary {% if not category_id %}active{% endif %}">
+                        全部商品
+                    </a>
+                </div>
+                <div>
+                    <form class="d-flex" method="GET" action="{{ url_for('product.list') }}">
+                        {% if category_id %}
+                        <input type="hidden" name="category_id" value="{{ category_id }}">
+                        {% endif %}
+                        <div class="position-relative">
+                            <input class="form-control me-2" type="text" name="keyword" 
+                                   placeholder="搜索商品..." value="{{ keyword if keyword }}"
+                                   style="width: 200px;">
+                            {% if keyword %}
+                            <a href="{{ url_for('product.list', category_id=category_id) }}" 
+                               class="position-absolute top-50 end-0 translate-middle-y text-secondary pe-3"
+                               style="text-decoration: none;">
+                                <i class="bi bi-x"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        <button class="btn btn-outline-primary" type="submit">搜索</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 第二行：分类 -->
+            <div class="category-group">
+                <div class="btn-group" role="group">
+                    {% for category in categories[:5] %}
+                    <a href="{{ url_for('product.list', category_id=category.id, keyword=keyword) }}" 
+                       class="btn btn-outline-primary {% if category_id == category.id %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                    
+                    {% if categories|length > 5 %}
+                    <button class="btn btn-outline-primary" id="showMoreBtn">
+                        显示更多 <i class="bi bi-chevron-down"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- 展开的分类 -->
+                <div id="moreCategories" class="mt-2" style="display: none;">
+                    {% for chunk in categories[5:]|batch(5) %}
+                    <div class="btn-group mb-2" role="group">
+                        {% for category in chunk %}
+                        <a href="{{ url_for('product.list', category_id=category.id, keyword=keyword) }}" 
+                           class="btn btn-outline-primary {% if category_id == category.id %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 
-    <h2 class="mb-4">{{ "搜索结果" if keyword else "全部商品" }}</h2>
-    
-    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         {% for product in products %}
         <div class="col">
             <div class="card h-100">
@@ -60,5 +104,129 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- 分页导航 -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <div class="d-flex justify-content-center align-items-center">
+            <!-- 上一页 -->
+            <a class="btn btn-outline-primary me-3 {% if pagination.page == 1 %}disabled{% endif %}" 
+               href="{{ url_for('product.list', page=pagination.prev_num) }}">
+                上一页
+            </a>
+
+            <!-- 页码输入框和页数显示 -->
+            <div class="d-flex align-items-center">
+                <span class="me-2">第</span>
+                <input type="number" id="pageInput" class="form-control mx-2" 
+                       style="width: 70px;" 
+                       value="{{ pagination.page }}" 
+                       min="1" 
+                       max="{{ pagination.pages }}"
+                       data-current-page="{{ pagination.page }}">
+                <span class="ms-2">页，共 {{ pagination.pages }} 页</span>
+            </div>
+
+            <!-- 下一页 -->
+            <a class="btn btn-outline-primary ms-3 {% if pagination.page == pagination.pages %}disabled{% endif %}" 
+               href="{{ url_for('product.list', page=pagination.next_num) }}">
+                下一页
+            </a>
+        </div>
+    </nav>
+    {% endif %}
 </div>
+
+<script>
+/* eslint-disable */
+document.addEventListener('DOMContentLoaded', function() {
+    const pageInput = document.getElementById('pageInput'),
+          maxPages = document.getElementById('pageInput').getAttribute('max');
+    
+    pageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const page = parseInt(this.value);
+            
+            if (page >= 1 && page <= maxPages) {
+                window.location.href = window.location.pathname + "?page=" + page;
+            } else {
+                alert('请输入有效的页码（1-' + maxPages + '）');
+                this.value = document.getElementById('pageInput').value;
+            }
+        }
+    });
+
+    pageInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value === '') return;
+        
+        const page = parseInt(this.value);
+        
+        if (page > maxPages) {
+            this.value = maxPages;
+        } else if (page < 1) {
+            this.value = 1;
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const showMoreBtn = document.getElementById('showMoreBtn');
+    const moreCategories = document.getElementById('moreCategories');
+    
+    // 从 localStorage 获取展开状态
+    const isExpanded = localStorage.getItem('categoriesExpanded') === 'true';
+    
+    // 如果之前是展开状态，则恢复展开
+    if (isExpanded) {
+        moreCategories.style.display = 'block';
+        const icon = showMoreBtn.querySelector('i');
+        icon.classList.remove('bi-chevron-down');
+        icon.classList.add('bi-chevron-up');
+        showMoreBtn.textContent = '收起 ';
+        showMoreBtn.appendChild(icon);
+    }
+    
+    showMoreBtn?.addEventListener('click', function() {
+        const icon = this.querySelector('i');
+        const isHidden = moreCategories.style.display === 'none';
+        
+        moreCategories.style.display = isHidden ? 'block' : 'none';
+        icon.classList.toggle('bi-chevron-down', !isHidden);
+        icon.classList.toggle('bi-chevron-up', isHidden);
+        this.textContent = isHidden ? '收起 ' : '显示更多 ';
+        this.appendChild(icon);
+        
+        // 保存展开状态到 localStorage
+        localStorage.setItem('categoriesExpanded', isHidden);
+    });
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+input[type="number"] {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+}
+.category-group .btn-group {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.category-group .btn {
+    border-radius: 0.375rem !important;
+}
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+}
+.btn-group .btn {
+    flex: 0 0 auto;
+}
+</style>
 {% endblock %} 

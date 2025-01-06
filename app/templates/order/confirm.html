@@ -43,6 +43,8 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('order.create_order') }}">
+                        <input type="hidden" name="selected_items" value="{{ request.args.get('selected_items') }}">
+                        
                         <div class="mb-3">
                             <label for="receiver_name" class="form-label">收货人姓名</label>
                             <input type="text" class="form-control" id="receiver_name" name="receiver_name" 

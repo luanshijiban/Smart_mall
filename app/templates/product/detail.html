@@ -6,8 +6,11 @@
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col">
+            <button onclick="history.back()" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> 返回上一页
+            </button>
             <a href="{{ url_for('product.list') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> 浏览更多商品
+                <i class="bi bi-grid"></i> 浏览更多商品
             </a>
         </div>
     </div>
@@ -27,13 +30,93 @@
             <p>{{ product.description }}</p>
             
             {% if current_user.is_authenticated %}
-            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
-                <button type="submit" class="btn btn-primary">加入购物车</button>
-            </form>
+            <div class="product-actions mt-4">
+                <div class="d-flex align-items-center mb-3">
+                    <label for="quantity" class="me-2">数量：</label>
+                    <div class="input-group" style="width: 150px;">
+                        <button class="btn btn-outline-secondary" type="button" id="decrease-quantity">-</button>
+                        <input type="number" class="form-control text-center" id="quantity" name="quantity" value="1" min="1" 
+                               style="border-left: none; border-right: none;">
+                        <button class="btn btn-outline-secondary" type="button" id="increase-quantity">+</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="add-to-cart-btn" data-product-id="{{ product.id }}">
+                    <i class="bi bi-cart-plus"></i> 加入购物车
+                </button>
+            </div>
             {% else %}
             <a href="{{ url_for('auth.login') }}" class="btn btn-primary">登录后购买</a>
             {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity');
+    const decreaseBtn = document.getElementById('decrease-quantity');
+    const increaseBtn = document.getElementById('increase-quantity');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+
+    // 数量减少按钮
+    decreaseBtn.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+        }
+    });
+
+    // 数量增加按钮
+    increaseBtn.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+    });
+
+    // 直接输入数量时的验证
+    quantityInput.addEventListener('change', function() {
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) {
+            this.value = 1;
+        }
+    });
+
+    // 加入购物车
+    addToCartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        const quantity = parseInt(quantityInput.value);
+        
+        fetch(`{{ url_for('cart.add_to_cart', product_id=product.id) }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                quantity: quantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = "{{ url_for('cart.list') }}";
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.input-group input[type="number"] {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+}
+.input-group input[type="number"]::-webkit-outer-spin-button,
+.input-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+</style>
 {% endblock %} 

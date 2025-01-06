@@ -14,11 +14,31 @@
     </div>
 
     <h2 class="mb-4">我的购物车</h2>
-    
+    <div class="cart-actions mb-3">
+        <button class="btn btn-outline-primary me-2" id="select-all-btn">
+            <i class="bi bi-check-square"></i> 全选
+        </button>
+        <button class="btn btn-outline-danger" id="clear-cart-btn" onclick="return confirm('确定要清空购物车吗？')">
+            <i class="bi bi-trash"></i> 清空购物车
+        </button>
+    </div>
+
+    <!-- 添加清空购物车的表单 -->
+    <form id="clear-cart-form" action="{{ url_for('cart.clear_cart') }}" method="POST" style="display: none;"></form>
+
     {% if cart_items %}
         <div class="cart-items">
             {% for item in cart_items %}
             <div class="cart-item mb-3">
+                <div class="cart-item-checkbox">
+                    <input type="checkbox" class="form-check-input item-checkbox" 
+                           data-id="{{ item.product_id }}" 
+                           data-price="{{ item.product.price }}"
+                           data-quantity="{{ item.quantity }}"
+                           style="visibility: hidden"
+                           {% if session.get('last_added_item') == item.product_id or 'cart_item_' ~ item.product_id in session.get('selected_items', []) %}checked{% endif %}
+                           onload="this.style.visibility='visible'">
+                </div>
                 <div class="cart-item-info">
                     <h5>
                         <a href="{{ url_for('product.detail', id=item.product.id) }}" class="text-decoration-none text-dark">
@@ -27,23 +47,35 @@
                     </h5>
                     <p>单价：¥{{ "%.2f"|format(item.product.price) }}</p>
                 </div>
-                <div class="quantity">
-                    <form method="POST" action="{{ url_for('cart.update_cart') }}">
+                <div class="quantity d-flex align-items-center">
+                    <form method="POST" action="{{ url_for('cart.update_cart') }}" id="form-{{ item.product_id }}">
                         <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
-                        <button type="submit" class="btn btn-sm btn-primary">更新</button>
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                               onchange="this.form.submit()" onkeypress="if(event.keyCode==13) this.form.submit()">
+                    </form>
+                    <a href="#" onclick="if(confirm('确定要从购物车中移除此商品吗？')) document.getElementById('delete-form-{{ item.product_id }}').submit(); return false;"
+                       class="ms-2" style="color: red;">
+                        <i class="bi bi-trash-fill"></i>
+                    </a>
+                    <form id="delete-form-{{ item.product_id }}" 
+                          action="{{ url_for('cart.delete_from_cart', product_id=item.product_id) }}" 
+                          method="POST" style="display: none;">
                     </form>
                 </div>
             </div>
             {% endfor %}
 
-            <!-- 修改下单按钮的路由 -->
             <div class="cart-summary mt-4">
                 <div class="total-amount">
-                    <h4>总计：¥{{ "%.2f"|format(total_amount) }}</h4>
+                    <h4>总计：¥<span id="selected-total">0.00</span></h4>
                 </div>
                 <div class="checkout-buttons mt-3">
-                    <a href="{{ url_for('order.confirm_order') }}" class="btn btn-success">去结算</a>
+                    <form id="checkout-form" action="{{ url_for('order.confirm_order') }}" method="GET">
+                        <input type="hidden" name="selected_items" id="selected-items-input">
+                        <button type="submit" class="btn btn-success" id="checkout-btn" disabled>
+                            去结算
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -65,6 +97,12 @@
     justify-content: space-between;
     align-items: center;
 }
+.cart-item-checkbox {
+    margin-right: 15px;
+}
+.cart-item-checkbox .form-check-input {
+    border-color: #333;
+}
 .cart-summary {
     border-top: 2px solid #ddd;
     padding-top: 20px;
@@ -75,9 +113,112 @@
     align-items: center;
     gap: 10px;
 }
-.quantity input {
+.quantity input[type="number"] {
     width: 80px;
-    margin-right: 10px;
+}
+.quantity a {
+    color: red !important;
+    text-decoration: none;
+    font-size: 1.5rem;
+}
+.quantity a:hover {
+    color: darkred !important;
+    opacity: 0.8;
+}
+.quantity i {
+    font-size: 1.5rem;
+    vertical-align: middle;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    const totalSpan = document.getElementById('selected-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const selectedItemsInput = document.getElementById('selected-items-input');
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const clearCartBtn = document.getElementById('clear-cart-btn');
+
+    // 初始化复选框状态并保存当前选中状态
+    function saveSelectedItems() {
+        const selectedItems = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => 'cart_item_' + cb.dataset.id);
+
+        // 使用 fetch 发送选中状态到服务器
+        fetch("{{ url_for('cart.save_selected_items') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ selected_items: selectedItems })
+        });
+    }
+
+    // 更新总价
+    function updateTotal() {
+        let total = 0;
+        let selectedItems = [];
+        
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const price = parseFloat(checkbox.dataset.price);
+                const quantity = parseInt(checkbox.dataset.quantity);
+                total += price * quantity;
+                selectedItems.push(checkbox.dataset.id);
+            }
+        });
+
+        totalSpan.textContent = total.toFixed(2);
+        selectedItemsInput.value = selectedItems.join(',');
+        checkoutBtn.disabled = selectedItems.length === 0;
+        
+        // 保存选中状态
+        saveSelectedItems();
+    }
+
+    // 单个复选框变化时更新总价
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateTotal();
+        });
+        checkbox.style.visibility = 'visible';
+    });
+
+    // 页面加载时立即更新总价
+    updateTotal();
+
+    // 全选/取消全选功能
+    selectAllBtn.addEventListener('click', function() {
+        const isAllSelected = Array.from(checkboxes).every(cb => cb.checked);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !isAllSelected;
+            if (!isAllSelected) {
+                localStorage.setItem('cart_item_' + checkbox.dataset.id, 'checked');
+            } else {
+                localStorage.removeItem('cart_item_' + checkbox.dataset.id);
+            }
+        });
+        updateTotal();
+    });
+
+    // 清空购物车功能
+    clearCartBtn.addEventListener('click', function() {
+        if (confirm('确定要清空购物车吗？')) {
+            document.getElementById('clear-cart-form').submit();
+        }
+    });
+
+    // 页面加载时初始化按钮状态
+    updateSelectAllButton();
+
+    // 初始化所有工具提示
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
 {% endblock %} 

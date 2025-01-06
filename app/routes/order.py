@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, render_template, flash, request
+from flask import Blueprint, redirect, url_for, render_template, flash, request, jsonify
 from flask_login import login_required, current_user
 from app.models.order import Order, OrderItem
 from app.models.cart import CartItem
@@ -10,74 +10,82 @@ order_bp = Blueprint('order', __name__)
 @order_bp.route('/confirm')
 @login_required
 def confirm_order():
-    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    selected_items = request.args.get('selected_items', '')
+    if not selected_items:
+        flash('请选择要结算的商品')
+        return redirect(url_for('cart.list'))
+    
+    product_ids = [int(id) for id in selected_items.split(',')]
+    cart_items = CartItem.query.filter(
+        CartItem.user_id == current_user.id,
+        CartItem.product_id.in_(product_ids)
+    ).all()
+    
     if not cart_items:
-        flash('购物车为空，无法创建订单')
+        flash('未找到选中的商品')
         return redirect(url_for('cart.list'))
     
     total_amount = sum(item.quantity * item.product.price for item in cart_items)
     return render_template('order/confirm.html', 
                          cart_items=cart_items, 
-                         total_amount=total_amount,
-                         default_name=current_user.real_name,
-                         default_phone=current_user.phone)
+                         total_amount=total_amount)
 
 @order_bp.route('/create', methods=['POST'])
 @login_required
 def create_order():
-    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    if not cart_items:
-        flash('购物车为空，无法创建订单')
+    selected_items = request.form.get('selected_items', '')
+    if not selected_items:
+        flash('请选择要结算的商品')
         return redirect(url_for('cart.list'))
     
-    # 获取表单数据
-    receiver_name = request.form.get('receiver_name')
-    shipping_address = request.form.get('shipping_address')
-    contact_phone = request.form.get('contact_phone')
+    product_ids = [int(id) for id in selected_items.split(',') if id]
+    cart_items = CartItem.query.filter(
+        CartItem.user_id == current_user.id,
+        CartItem.product_id.in_(product_ids)
+    ).all()
     
-    if not all([receiver_name, shipping_address, contact_phone]):
-        flash('请填写完整的收货信息')
-        return redirect(url_for('order.confirm_order'))
-    
-    # 计算总金额
-    total_amount = sum(item.quantity * item.product.price for item in cart_items)
-    
-    # 创建订单
-    order = Order(
-        user_id=current_user.id,
-        order_number=datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
-        status='pending',
-        total_amount=total_amount,
-        receiver_name=receiver_name,
-        shipping_address=shipping_address,
-        contact_phone=contact_phone,
-        is_completed=False  # 新订单默认未完成
-    )
-    db.session.add(order)
-    db.session.flush()
-    
-    # 添加订单项
-    for item in cart_items:
-        order_item = OrderItem(
-            order_id=order.id,
-            product_id=item.product_id,
-            quantity=item.quantity,
-            price=item.product.price
-        )
-        db.session.add(order_item)
-    
-    # 清空购物车
-    CartItem.query.filter_by(user_id=current_user.id).delete()
+    if not cart_items:
+        flash('未找到选中的商品')
+        return redirect(url_for('cart.list'))
     
     try:
+        # 创建订单
+        order = Order(
+            user_id=current_user.id,
+            order_number=datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
+            status='pending',
+            total_amount=sum(item.quantity * item.product.price for item in cart_items),
+            receiver_name=request.form.get('receiver_name'),
+            shipping_address=request.form.get('shipping_address'),
+            contact_phone=request.form.get('contact_phone')
+        )
+        db.session.add(order)
+        db.session.flush()
+        
+        # 添加订单项
+        for cart_item in cart_items:
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=cart_item.product_id,
+                quantity=cart_item.quantity,
+                price=cart_item.product.price
+            )
+            db.session.add(order_item)
+        
+        # 删除已下单的购物车项
+        CartItem.query.filter(
+            CartItem.user_id == current_user.id,
+            CartItem.product_id.in_(product_ids)
+        ).delete(synchronize_session=False)
+        
         db.session.commit()
         flash('订单创建成功！')
+        return redirect(url_for('order.view_orders'))
+        
     except Exception as e:
         db.session.rollback()
         flash('订单创建失败，请重试')
         return redirect(url_for('cart.list'))
-        
-    return redirect(url_for('order.view_orders'))
 
 @order_bp.route('/list')
 @login_required
