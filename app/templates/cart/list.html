@@ -4,13 +4,27 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>我的购物车</h2>
+    <!-- 返回按钮 -->
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{{ url_for('product.list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 浏览更多商品
+            </a>
+        </div>
+    </div>
+
+    <h2 class="mb-4">我的购物车</h2>
+    
     {% if cart_items %}
         <div class="cart-items">
             {% for item in cart_items %}
-            <div class="cart-item">
-                <div class="product-info">
-                    <h5>{{ item.product.name }}</h5>
+            <div class="cart-item mb-3">
+                <div class="cart-item-info">
+                    <h5>
+                        <a href="{{ url_for('product.detail', id=item.product.id) }}" class="text-decoration-none text-dark">
+                            {{ item.product.name }}
+                        </a>
+                    </h5>
                     <p>单价：¥{{ "%.2f"|format(item.product.price) }}</p>
                 </div>
                 <div class="quantity">
@@ -22,9 +36,48 @@
                 </div>
             </div>
             {% endfor %}
+
+            <!-- 修改下单按钮的路由 -->
+            <div class="cart-summary mt-4">
+                <div class="total-amount">
+                    <h4>总计：¥{{ "%.2f"|format(total_amount) }}</h4>
+                </div>
+                <div class="checkout-buttons mt-3">
+                    <a href="{{ url_for('order.confirm_order') }}" class="btn btn-success">去结算</a>
+                </div>
+            </div>
         </div>
     {% else %}
         <p>购物车是空的</p>
     {% endif %}
 </div>
+
+<style>
+.cart-items {
+    margin-top: 20px;
+}
+.cart-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cart-summary {
+    border-top: 2px solid #ddd;
+    padding-top: 20px;
+    text-align: right;
+}
+.quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.quantity input {
+    width: 80px;
+    margin-right: 10px;
+}
+</style>
 {% endblock %} 

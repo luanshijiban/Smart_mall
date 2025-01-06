@@ -4,7 +4,28 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">全部商品</h2>
+    <!-- 添加返回按钮（仅在搜索结果页显示） -->
+    {% if keyword %}
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{{ url_for('product.list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 浏览更多商品
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 搜索表单 -->
+    <div class="row mb-4">
+        <div class="col">
+            <form class="d-flex" method="GET" action="{{ url_for('product.search') }}">
+                <input class="form-control me-2" type="search" name="keyword" placeholder="搜索商品..." value="{{ keyword }}">
+                <button class="btn btn-outline-primary" type="submit">搜索</button>
+            </form>
+        </div>
+    </div>
+
+    <h2 class="mb-4">{{ "搜索结果" if keyword else "全部商品" }}</h2>
     
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
         {% for product in products %}
@@ -35,7 +56,7 @@
         </div>
         {% else %}
         <div class="col-12">
-            <p class="text-center">暂无商品</p>
+            <p class="text-center">{{ "未找到相关商品" if keyword else "暂无商品" }}</p>
         </div>
         {% endfor %}
     </div>

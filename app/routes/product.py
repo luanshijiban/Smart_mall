@@ -14,7 +14,7 @@ def list():
 def search():
     keyword = request.args.get('keyword', '')
     products = Product.query.filter(Product.name.like(f'%{keyword}%')).all()
-    return render_template('product/search.html', products=products, keyword=keyword)
+    return render_template('product/list.html', products=products, keyword=keyword)
 
 @product_bp.route('/<int:id>')
 def detail(id):

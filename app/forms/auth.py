@@ -37,9 +37,6 @@ class RegistrationForm(FlaskForm):
         Length(max=20, message='电话长度不能超过20个字符'),
         Regexp(r'^\d+$', message='电话号码只能包含数字')
     ])
-    address = StringField('邮寄地址', validators=[
-        Length(max=100, message='地址长度不能超过100个字符')
-    ])
     submit = SubmitField('注册')
 
     def validate_username(self, field):

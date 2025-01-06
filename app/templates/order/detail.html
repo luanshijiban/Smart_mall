@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}订单详情 - 智慧商城{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{{ url_for('order.view_orders') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 返回订单列表
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">订单详情</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-{{ 'success' if order.is_completed else 'warning' }} me-3">
+                        {{ '已完成' if order.is_completed else '待处理' }}
+                    </span>
+                    {% if not order.is_completed %}
+                    <form method="POST" action="{{ url_for('order.complete_order', order_id=order.id) }}" 
+                          style="display: inline;">
+                        <button type="submit" class="btn btn-success btn-sm" 
+                                onclick="return confirm('确认已收到商品吗？')">
+                            确认收货
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>订单编号：</strong>{{ order.order_number }}</p>
+                    <p><strong>下单时间：</strong>{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>收货人：</strong>{{ order.receiver_name }}</p>
+                    <p><strong>收货地址：</strong>{{ order.shipping_address }}</p>
+                    <p><strong>联系电话：</strong>{{ order.contact_phone }}</p>
+                </div>
+            </div>
+
+            <h6 class="mb-3">商品清单</h6>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>商品名称</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th class="text-end">小计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('product.detail', id=item.product.id) }}" 
+                                   class="text-decoration-none text-dark">
+                                    {{ item.product.name }}
+                                </a>
+                            </td>
+                            <td>¥{{ "%.2f"|format(item.price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td class="text-end">¥{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>总计：</strong></td>
+                            <td class="text-end"><strong>¥{{ "%.2f"|format(order.total_amount) }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -10,7 +10,9 @@ cart_bp = Blueprint('cart', __name__)
 @login_required
 def list():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('cart/list.html', cart_items=cart_items)
+    # 计算总金额
+    total_amount = sum(item.product.price * item.quantity for item in cart_items)
+    return render_template('cart/list.html', cart_items=cart_items, total_amount=total_amount)
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required

@@ -8,7 +8,6 @@ CREATE TABLE user (
     username VARCHAR(30) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
-    address VARCHAR(100),
     real_name VARCHAR(60),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
@@ -60,6 +59,8 @@ CREATE TABLE `order` (
     user_id INT NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    is_completed TINYINT(1) NOT NULL DEFAULT 0,
+    receiver_name VARCHAR(50) NOT NULL,
     shipping_address TEXT NOT NULL,
     contact_phone VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -81,5 +82,10 @@ CREATE TABLE order_item (
     FOREIGN KEY (product_id) REFERENCES product(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
+select * from user;
+select * from category; 
+select * from product;
+select * from cart; 
+select * from `order`;
+select * from order_item;
 

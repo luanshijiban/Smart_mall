@@ -3,33 +3,20 @@ from datetime import datetime
 from sqlalchemy import Numeric
 
 class Order(db.Model):
-    __tablename__ = 'order'
-    
     id = db.Column(db.Integer, primary_key=True)
-    order_number = db.Column(db.String(30), unique=True, nullable=False)
+    order_number = db.Column(db.String(20), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     total_amount = db.Column(Numeric(10, 2), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')
-    shipping_address = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    receiver_name = db.Column(db.String(50), nullable=False)
+    shipping_address = db.Column(db.String(200), nullable=False)
     contact_phone = db.Column(db.String(20), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # 关系
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
     user = db.relationship('User', back_populates='orders')
-    items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
-    
-    def __repr__(self):
-        return f'<Order {self.order_number}>'
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'order_number': self.order_number,
-            'total_amount': float(self.total_amount),
-            'status': self.status,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        }
+    items = db.relationship('OrderItem', back_populates='order', lazy=True)
 
 class OrderItem(db.Model):
     __tablename__ = 'order_item'
