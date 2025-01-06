@@ -4,165 +4,173 @@
 
 {% block styles %}
 <style>
-body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-.hero-section {
-    min-height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    background: url('/static/images/back.png') center/cover no-repeat fixed;
-    margin: 0;
-    padding: 0;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-    margin-top: -90px;
-}
-
-.hero-section::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1;
-    width: 100vw;
-    height: 100vh;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-}
-
-.hero-title {
-    font-family: "华文行楷", "楷体", serif;
-    font-size: 4rem;
-    color: #FFD700;
-    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
-    margin-bottom: 1.5rem;
-    animation: fadeInDown 1.5s ease-out;
-    letter-spacing: 5px;
-}
-
-.hero-subtitle {
-    font-family: "幼圆", "Microsoft YaHei", sans-serif;
-    font-size: 1.75rem;
-    color: #E0FFFF;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
-    margin-bottom: 3rem;
-    animation: fadeIn 2s ease-out;
-    letter-spacing: 2px;
-}
-
-.cta-button {
-    padding: 1rem 2.5rem;
-    font-size: 1.25rem;
-    font-family: "黑体", "Microsoft YaHei", sans-serif;
-    background: linear-gradient(135deg, #00BFFF, #1E90FF);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    animation: fadeInUp 1.5s ease-out;
-    letter-spacing: 2px;
-}
-
-.cta-button:hover {
-    background: linear-gradient(135deg, #1E90FF, #4169E1);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(30, 144, 255, 0.5);
-    color: white;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
+    /* 重置基础样式 */
+    body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden; /* 防止水平滚动 */
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    /* 英雄区样式 */
+    .hero-section {
+        position: relative;
+        width: 100vw;  /* 使用视窗宽度 */
+        height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                    url('{{ url_for("static", filename="images/back.png") }}');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        margin-top: -80px;
+        margin-left: calc(-50vw + 50%); /* 抵消容器边距 */
+        margin-right: calc(-50vw + 50%); /* 抵消容器边距 */
+        padding-top: 80px;
     }
-}
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
+    .hero-content {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+        z-index: 1;  /* 确保内容在背景之上 */
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    /* 标题样式 */
+    .hero-title {
+        font-family: "华文行楷", "楷体", serif;
+        font-size: 4rem;
+        color: #FFD700;
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+        margin-bottom: 1.5rem;
+        animation: fadeInDown 1.5s ease-out;
     }
-}
 
-.auth-buttons {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 3;
-    display: flex;
-    gap: 15px;
-}
+    /* 副标题样式 */
+    .hero-subtitle {
+        font-family: "幼圆", "Microsoft YaHei", sans-serif;
+        font-size: 1.75rem;
+        color: #E0FFFF;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+        margin-bottom: 3rem;
+        animation: fadeIn 2s ease-out;
+    }
 
-.auth-button {
-    padding: 8px 20px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-family: "Microsoft YaHei", sans-serif;
-}
+    /* 按钮样式 */
+    .cta-button {
+        padding: 1rem 2.5rem;
+        font-size: 1.25rem;
+        background: linear-gradient(135deg, #00BFFF, #1E90FF);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        animation: fadeInUp 1.5s ease-out;
+    }
 
-.login-btn {
-    background: transparent;
-    border: 2px solid #fff;
-    color: #fff;
-}
+    .cta-button:hover {
+        background: linear-gradient(135deg, #1E90FF, #4169E1);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(30, 144, 255, 0.5);
+        color: white;
+    }
 
-.login-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
+    /* 动画效果 */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.register-btn {
-    background: #1E90FF;
-    border: 2px solid #1E90FF;
-    color: #fff;
-}
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
-.register-btn:hover {
-    background: #4169E1;
-    border-color: #4169E1;
-    color: #fff;
-}
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 特色区域 */
+    .features-section {
+        background-color: #f8f9fa;
+        padding: 4rem 0;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        color: #1E90FF;
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hero-section">
+<!-- 英雄区 -->
+<section class="hero-section">
     <div class="hero-content">
         <h1 class="hero-title">欢迎光临智慧商城</h1>
         <p class="hero-subtitle">为您提供优质的产品和服务</p>
-        <a href="{{ url_for('product.list') }}" class="cta-button">立即选购</a>
+        <a href="{{ url_for('product.list') }}" class="cta-button">
+            <i class="bi bi-cart-plus"></i> 立即选购
+        </a>
     </div>
-</div>
+</section>
+
+<!-- 特色区域 -->
+<section class="features-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-truck feature-icon"></i>
+                    <h3>快速配送</h3>
+                    <p>全国范围内24小时内发货，让您享受极速购物体验</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-shield-check feature-icon"></i>
+                    <h3>品质保证</h3>
+                    <p>所有商品经过严格质检，确保每一件商品都值得信赖</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-headset feature-icon"></i>
+                    <h3>贴心服务</h3>
+                    <p>专业客服团队7*24小时在线，为您解答任何问题</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %} 

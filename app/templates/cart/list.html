@@ -13,153 +13,176 @@
         </div>
     </div>
 
-    <h2 class="mb-4">我的购物车</h2>
-    <div class="cart-actions mb-3">
-        <button class="btn btn-outline-primary me-2" id="select-all-btn">
-            <i class="bi bi-check-square"></i> 全选
-        </button>
-        <button class="btn btn-outline-danger" id="clear-cart-btn" onclick="return confirm('确定要清空购物车吗？')">
-            <i class="bi bi-trash"></i> 清空购物车
-        </button>
+    <!-- 购物车标题和操作按钮 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-cart3"></i> 我的购物车
+        </h2>
+        <div class="cart-actions">
+            <button class="btn btn-outline-primary me-2" id="select-all-btn">
+                <i class="bi bi-check-square"></i> 全选
+            </button>
+            <button class="btn btn-outline-danger" id="clear-cart-btn">
+                <i class="bi bi-trash"></i> 清空购物车
+            </button>
+        </div>
     </div>
 
-    <!-- 添加清空购物车的表单 -->
+    <!-- 清空购物车的表单 -->
     <form id="clear-cart-form" action="{{ url_for('cart.clear_cart') }}" method="POST" style="display: none;"></form>
 
     {% if cart_items %}
-        <div class="cart-items">
-            {% for item in cart_items %}
-            <div class="cart-item mb-3">
-                <div class="cart-item-checkbox">
+    <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="card mb-3 cart-item">
+            <div class="card-body d-flex align-items-center">
+                <!-- 复选框 -->
+                <div class="form-check me-3">
                     <input type="checkbox" class="form-check-input item-checkbox" 
                            data-id="{{ item.product_id }}" 
                            data-price="{{ item.product.price }}"
                            data-quantity="{{ item.quantity }}"
-                           style="visibility: hidden"
-                           {% if session.get('last_added_item') == item.product_id or 'cart_item_' ~ item.product_id in session.get('selected_items', []) %}checked{% endif %}
-                           onload="this.style.visibility='visible'">
+                           {% if session.get('last_added_item') == item.product_id %}checked{% endif %}>
                 </div>
-                <div class="cart-item-info">
-                    <h5>
-                        <a href="{{ url_for('product.detail', id=item.product.id) }}" class="text-decoration-none text-dark">
+
+                <!-- 商品图片 -->
+                <div class="cart-item-image me-3">
+                    {% if item.product.image_url %}
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                         class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 商品信息 -->
+                <div class="cart-item-info flex-grow-1">
+                    <h5 class="mb-1">
+                        <a href="{{ url_for('product.detail', id=item.product.id) }}" 
+                           class="text-decoration-none text-dark">
                             {{ item.product.name }}
                         </a>
                     </h5>
-                    <p>单价：¥{{ "%.2f"|format(item.product.price) }}</p>
+                    <p class="text-muted mb-1">
+                        <i class="bi bi-tag"></i> {{ item.product.category.name }}
+                    </p>
+                    <p class="text-primary mb-0">¥{{ "%.2f"|format(item.product.price) }}</p>
                 </div>
-                <div class="quantity d-flex align-items-center">
-                    <form method="POST" action="{{ url_for('cart.update_cart') }}" id="form-{{ item.product_id }}">
-                        <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
-                               onchange="this.form.submit()" onkeypress="if(event.keyCode==13) this.form.submit()">
-                    </form>
-                    <a href="#" onclick="if(confirm('确定要从购物车中移除此商品吗？')) document.getElementById('delete-form-{{ item.product_id }}').submit(); return false;"
-                       class="ms-2" style="color: red;">
-                        <i class="bi bi-trash-fill"></i>
-                    </a>
-                    <form id="delete-form-{{ item.product_id }}" 
-                          action="{{ url_for('cart.delete_from_cart', product_id=item.product_id) }}" 
-                          method="POST" style="display: none;">
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
 
-            <div class="cart-summary mt-4">
-                <div class="total-amount">
-                    <h4>总计：¥<span id="selected-total">0.00</span></h4>
-                </div>
-                <div class="checkout-buttons mt-3">
-                    <form id="checkout-form" action="{{ url_for('order.confirm_order') }}" method="GET">
-                        <input type="hidden" name="selected_items" id="selected-items-input">
-                        <button type="submit" class="btn btn-success" id="checkout-btn" disabled>
-                            去结算
+                <!-- 数量控制 -->
+                <div class="cart-item-quantity mx-4">
+                    <div class="input-group" style="width: 150px;">
+                        <button class="btn btn-outline-secondary quantity-decrease" type="button">
+                            <i class="bi bi-dash"></i>
                         </button>
-                    </form>
+                        <input type="number" class="form-control text-center quantity-input" 
+                               value="{{ item.quantity }}" min="1"
+                               data-product-id="{{ item.product_id }}">
+                        <button class="btn btn-outline-secondary quantity-increase" type="button">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 删除按钮 -->
+                <div class="cart-item-actions">
+                    <button class="btn btn-outline-danger delete-item" 
+                            data-product-id="{{ item.product_id }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
             </div>
         </div>
+        {% endfor %}
+
+        <!-- 结算区域 -->
+        <div class="card mt-4">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="selected-info">
+                    <span class="me-3">已选择 <span id="selected-count">0</span> 件商品</span>
+                    <span class="h4 mb-0">总计：¥<span id="selected-total">0.00</span></span>
+                </div>
+                <form id="checkout-form" action="{{ url_for('order.confirm_order') }}" method="GET">
+                    <input type="hidden" name="selected_items" id="selected-items-input">
+                    <button type="submit" class="btn btn-primary btn-lg" id="checkout-btn" disabled>
+                        <i class="bi bi-cart-check"></i> 去结算
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
     {% else %}
-        <p>购物车是空的</p>
+    <!-- 空购物车提示 -->
+    <div class="text-center py-5">
+        <i class="bi bi-cart-x" style="font-size: 4rem; color: #6c757d;"></i>
+        <h3 class="mt-3">购物车是空的</h3>
+        <p class="text-muted">快去添加一些商品吧！</p>
+        <a href="{{ url_for('product.list') }}" class="btn btn-primary mt-3">
+            <i class="bi bi-shop"></i> 去购物
+        </a>
+    </div>
     {% endif %}
 </div>
 
 <style>
-.cart-items {
-    margin-top: 20px;
-}
 .cart-item {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.cart-item-checkbox {
-    margin-right: 15px;
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.cart-item-checkbox .form-check-input {
-    border-color: #333;
+
+.cart-item-image img {
+    transition: transform 0.3s ease;
 }
-.cart-summary {
-    border-top: 2px solid #ddd;
-    padding-top: 20px;
-    text-align: right;
+
+.cart-item-image img:hover {
+    transform: scale(1.05);
 }
-.quantity {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+
+.quantity-input {
+    border-left: none;
+    border-right: none;
 }
-.quantity input[type="number"] {
-    width: 80px;
+
+.quantity-input:focus {
+    box-shadow: none;
+    border-color: #ced4da;
 }
-.quantity a {
-    color: red !important;
-    text-decoration: none;
-    font-size: 1.5rem;
+
+#checkout-btn {
+    transition: all 0.3s ease;
 }
-.quantity a:hover {
-    color: darkred !important;
-    opacity: 0.8;
-}
-.quantity i {
-    font-size: 1.5rem;
-    vertical-align: middle;
+
+#checkout-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 </style>
 
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 初始化所有变量
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const totalSpan = document.getElementById('selected-total');
+    const countSpan = document.getElementById('selected-count');
     const checkoutBtn = document.getElementById('checkout-btn');
     const selectedItemsInput = document.getElementById('selected-items-input');
     const selectAllBtn = document.getElementById('select-all-btn');
     const clearCartBtn = document.getElementById('clear-cart-btn');
 
-    // 初始化复选框状态并保存当前选中状态
-    function saveSelectedItems() {
-        const selectedItems = Array.from(checkboxes)
-            .filter(cb => cb.checked)
-            .map(cb => 'cart_item_' + cb.dataset.id);
-
-        // 使用 fetch 发送选中状态到服务器
-        fetch("{{ url_for('cart.save_selected_items') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ selected_items: selectedItems })
-        });
-    }
-
-    // 更新总价
+    // 更新总计和选中数量
     function updateTotal() {
         let total = 0;
+        let count = 0;
         let selectedItems = [];
         
         checkboxes.forEach(checkbox => {
@@ -167,58 +190,114 @@ document.addEventListener('DOMContentLoaded', function() {
                 const price = parseFloat(checkbox.dataset.price);
                 const quantity = parseInt(checkbox.dataset.quantity);
                 total += price * quantity;
+                count += quantity;
                 selectedItems.push(checkbox.dataset.id);
             }
         });
 
         totalSpan.textContent = total.toFixed(2);
+        countSpan.textContent = count;
         selectedItemsInput.value = selectedItems.join(',');
         checkoutBtn.disabled = selectedItems.length === 0;
-        
-        // 保存选中状态
-        saveSelectedItems();
     }
 
-    // 单个复选框变化时更新总价
+    // 绑定复选框事件
     checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            updateTotal();
-        });
-        checkbox.style.visibility = 'visible';
+        checkbox.addEventListener('change', updateTotal);
     });
 
-    // 页面加载时立即更新总价
-    updateTotal();
-
-    // 全选/取消全选功能
+    // 全选/取消全选
     selectAllBtn.addEventListener('click', function() {
         const isAllSelected = Array.from(checkboxes).every(cb => cb.checked);
         checkboxes.forEach(checkbox => {
             checkbox.checked = !isAllSelected;
-            if (!isAllSelected) {
-                localStorage.setItem('cart_item_' + checkbox.dataset.id, 'checked');
-            } else {
-                localStorage.removeItem('cart_item_' + checkbox.dataset.id);
-            }
         });
         updateTotal();
     });
 
-    // 清空购物车功能
+    // 清空购物车
     clearCartBtn.addEventListener('click', function() {
         if (confirm('确定要清空购物车吗？')) {
             document.getElementById('clear-cart-form').submit();
         }
     });
 
-    // 页面加载时初始化按钮状态
-    updateSelectAllButton();
-
-    // 初始化所有工具提示
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
+    // 数量增减控制
+    document.querySelectorAll('.quantity-decrease').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.quantity-input');
+            if (input.value > 1) {
+                input.value = parseInt(input.value) - 1;
+                updateQuantity(input);
+            }
+        });
     });
+
+    document.querySelectorAll('.quantity-increase').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.quantity-input');
+            input.value = parseInt(input.value) + 1;
+            updateQuantity(input);
+        });
+    });
+
+    // 更新商品数量
+    function updateQuantity(input) {
+        const productId = input.dataset.productId;
+        const quantity = parseInt(input.value);
+
+        fetch(`/cart/update/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('更新失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('更新失败，请重试');
+        });
+    }
+
+    // 删除商品
+    document.querySelectorAll('.delete-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('确定要从购物车中移除此商品吗？')) {
+                const productId = this.dataset.productId;
+                fetch(`/cart/delete/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert('删除失败，请重试');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除失败，请重试');
+                });
+            }
+        });
+    });
+
+    // 页面加载时更新总计
+    updateTotal();
 });
 </script>
+{% endblock %}
 {% endblock %} 

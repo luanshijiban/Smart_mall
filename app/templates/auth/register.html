@@ -1,72 +1,123 @@
 {% extends "base.html" %}
 
-{% block title %}注册 - 智慧电脑商城{% endblock %}
+{% block title %}注册 - 智慧商城{% endblock %}
 
 {% block styles %}
 <style>
-.auth-container {
-    max-width: 450px;
-    margin: 2rem auto;
-}
+    .auth-container {
+        max-width: 450px;
+        margin: 2rem auto;
+        animation: fadeIn 0.8s ease-out;
+    }
 
-.auth-card {
-    padding: 2rem;
-}
+    .auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
 
-.auth-title {
-    font-family: "华文行楷", "楷体", serif;
-    font-size: 2rem;
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    letter-spacing: 3px;
-}
+    .auth-title {
+        font-family: "华文行楷", "楷体", serif;
+        font-size: 2.2rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 2rem;
+        letter-spacing: 3px;
+        position: relative;
+    }
 
-.form-floating {
-    margin-bottom: 1rem;
-}
+    .auth-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #3498db, #2ecc71);
+        margin: 10px auto 0;
+        border-radius: 3px;
+    }
 
-.form-floating > .form-control {
-    padding: 1rem 0.75rem;
-}
+    .form-floating {
+        margin-bottom: 1.2rem;
+    }
 
-.form-hint {
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-    padding-left: 0.5rem;
-}
+    .form-floating > .form-control {
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        padding: 1rem 0.75rem;
+        transition: all 0.3s ease;
+    }
 
-.required::after {
-    content: " *";
-    color: #e74c3c;
-}
+    .form-floating > .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
 
-.auth-submit {
-    width: 100%;
-    padding: 0.8rem;
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    margin-top: 1rem;
-}
+    .form-hint {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 0.3rem;
+        margin-left: 0.5rem;
+    }
 
-.auth-links {
-    text-align: center;
-    margin-top: 1rem;
-}
+    .required::after {
+        content: " *";
+        color: #e74c3c;
+    }
 
-.auth-links a {
-    color: #3498db;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
+    .auth-submit {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        margin-top: 1.5rem;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #3498db, #2ecc71);
+        border: none;
+        transition: all 0.3s ease;
+    }
 
-.auth-links a:hover {
-    color: #2980b9;
-    text-decoration: underline;
-}
+    .auth-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .auth-links {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .auth-links a {
+        color: #3498db;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .auth-links a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    .invalid-feedback {
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        margin-left: 0.5rem;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -82,48 +133,60 @@
                 {{ form.username(class="form-control", placeholder="用户名") }}
                 <label for="username" class="required">用户名</label>
                 {% for error in form.username.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    <div class="invalid-feedback">{{ error }}</div>
                 {% endfor %}
-                <div class="form-hint">字母、数字、下划线组成</div>
+                <div class="form-hint">
+                    <i class="bi bi-info-circle"></i> 字母、数字、下划线组成
+                </div>
             </div>
 
             <div class="form-floating">
                 {{ form.password(class="form-control", placeholder="密码") }}
                 <label for="password" class="required">密码</label>
                 {% for error in form.password.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    <div class="invalid-feedback">{{ error }}</div>
                 {% endfor %}
-                <div class="form-hint">请设置登录密码</div>
+                <div class="form-hint">
+                    <i class="bi bi-shield-lock"></i> 请设置安全的登录密码
+                </div>
             </div>
 
             <div class="form-floating">
                 {{ form.password2(class="form-control", placeholder="确认密码") }}
                 <label for="password2" class="required">确认密码</label>
                 {% for error in form.password2.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    <div class="invalid-feedback">{{ error }}</div>
                 {% endfor %}
-                <div class="form-hint">请再次输入密码</div>
+                <div class="form-hint">
+                    <i class="bi bi-check2-circle"></i> 请再次输入密码
+                </div>
             </div>
 
             <div class="form-floating">
                 {{ form.realname(class="form-control", placeholder="真实姓名") }}
                 <label for="realname">真实姓名</label>
-                <div class="form-hint">请输入您的真实姓名</div>
+                <div class="form-hint">
+                    <i class="bi bi-person"></i> 请输入您的真实姓名
+                </div>
             </div>
 
             <div class="form-floating">
                 {{ form.phone(class="form-control", placeholder="联系电话") }}
                 <label for="phone">联系电话</label>
-                <div class="form-hint">请输入有效的联系方式</div>
+                <div class="form-hint">
+                    <i class="bi bi-telephone"></i> 请输入有效的联系方式
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary auth-submit">
-                提交注册
+                <i class="bi bi-person-plus"></i> 提交注册
             </button>
         </form>
 
         <div class="auth-links">
-            <a href="{{ url_for('auth.login') }}">已有账号？立即登录</a>
+            <a href="{{ url_for('auth.login') }}">
+                <i class="bi bi-box-arrow-in-right"></i> 已有账号？立即登录
+            </a>
         </div>
     </div>
 </div>
