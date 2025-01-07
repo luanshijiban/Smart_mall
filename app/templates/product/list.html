@@ -204,73 +204,74 @@
     </nav>
     {% endif %}
 </div>
+{% endblock %}
 
 {% block scripts %}
 <script>
-/* eslint-disable */
 document.addEventListener('DOMContentLoaded', function() {
-    const pageInput = document.getElementById('pageInput'),
-          maxPages = document.getElementById('pageInput').getAttribute('max');
-    
-    pageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
+    // 分页输入处理
+    const pageInput = document.getElementById('pageInput');
+    if (pageInput) {
+        const maxPages = pageInput.getAttribute('max');
+        
+        pageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const page = parseInt(this.value);
+                
+                if (page >= 1 && page <= maxPages) {
+                    window.location.href = window.location.pathname + "?page=" + page;
+                } else {
+                    alert('请输入有效的页码（1-' + maxPages + '）');
+                    this.value = this.getAttribute('data-current-page');
+                }
+            }
+        });
+
+        pageInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value === '') return;
+            
             const page = parseInt(this.value);
             
-            if (page >= 1 && page <= maxPages) {
-                window.location.href = window.location.pathname + "?page=" + page;
-            } else {
-                alert('请输入有效的页码（1-' + maxPages + '）');
-                this.value = document.getElementById('pageInput').value;
+            if (page > maxPages) {
+                this.value = maxPages;
+            } else if (page < 1) {
+                this.value = 1;
             }
-        }
-    });
+        });
+    }
 
-    pageInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value === '') return;
-        
-        const page = parseInt(this.value);
-        
-        if (page > maxPages) {
-            this.value = maxPages;
-        } else if (page < 1) {
-            this.value = 1;
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
+    // 分类展开/收起功能
     const showMoreBtn = document.getElementById('showMoreBtn');
     const moreCategories = document.getElementById('moreCategories');
     
-    // 从 localStorage 获取展开状态
-    const isExpanded = localStorage.getItem('categoriesExpanded') === 'true';
-    
-    // 如果之前是展开状态，则恢复展开
-    if (isExpanded) {
-        moreCategories.style.display = 'block';
-        const icon = showMoreBtn.querySelector('i');
-        icon.classList.remove('bi-chevron-down');
-        icon.classList.add('bi-chevron-up');
-        showMoreBtn.textContent = '收起 ';
-        showMoreBtn.appendChild(icon);
+    if (showMoreBtn && moreCategories) {
+        console.log('Found elements:', { showMoreBtn, moreCategories }); // 调试日志
+        
+        // 更新按钮状态的辅助函数
+        function updateButtonState(isExpanded) {
+            showMoreBtn.innerHTML = `${isExpanded ? '收起' : '更多分类'} <i class="bi bi-chevron-${isExpanded ? 'up' : 'down'}"></i>`;
+        }
+
+        // 从 localStorage 获取展开状态
+        const isExpanded = localStorage.getItem('categoriesExpanded') === 'true';
+        
+        // 设置初始状态
+        moreCategories.style.display = isExpanded ? 'block' : 'none';
+        updateButtonState(isExpanded);
+        
+        // 点击事件处理
+        showMoreBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // 防止可能的页面跳转
+            console.log('Button clicked'); // 调试日志
+            
+            const isCurrentlyHidden = moreCategories.style.display === 'none';
+            moreCategories.style.display = isCurrentlyHidden ? 'block' : 'none';
+            updateButtonState(isCurrentlyHidden);
+            localStorage.setItem('categoriesExpanded', isCurrentlyHidden);
+        });
     }
-    
-    showMoreBtn?.addEventListener('click', function() {
-        const icon = this.querySelector('i');
-        const isHidden = moreCategories.style.display === 'none';
-        
-        moreCategories.style.display = isHidden ? 'block' : 'none';
-        icon.classList.toggle('bi-chevron-down', !isHidden);
-        icon.classList.toggle('bi-chevron-up', isHidden);
-        this.textContent = isHidden ? '收起 ' : '显示更多 ';
-        this.appendChild(icon);
-        
-        // 保存展开状态到 localStorage
-        localStorage.setItem('categoriesExpanded', isHidden);
-    });
 });
 </script>
-{% endblock %}
 {% endblock %} 
