@@ -25,10 +25,10 @@ def add_to_cart(product_id):
     try:
         # 获取数量，从表单中获取
         quantity = int(request.form.get('quantity', 1))
-        print(f"Debug - Quantity from form: {quantity}")  # 调试信息
+        print(f"Debug - Quantity from form: {quantity}")
         
         product = Product.query.get_or_404(product_id)
-        print(f"Debug - Product found: {product.name}")  # 调试信息
+        print(f"Debug - Product found: {product.name}")
 
         cart_item = CartItem.query.filter_by(
             user_id=current_user.id,
@@ -37,7 +37,7 @@ def add_to_cart(product_id):
         
         if cart_item:
             cart_item.quantity += quantity
-            print(f"Debug - Updated quantity: {cart_item.quantity}")  # 调试信息
+            print(f"Debug - Updated quantity: {cart_item.quantity}")
         else:
             cart_item = CartItem(
                 user_id=current_user.id,
@@ -45,14 +45,21 @@ def add_to_cart(product_id):
                 quantity=quantity
             )
             db.session.add(cart_item)
-            print(f"Debug - New cart item created")  # 调试信息
+            print(f"Debug - New cart item created")
         
         db.session.commit()
+        
+        # 更新 session 中的选中状态
+        selected_items = session.get('selected_items', [])
+        if str(product_id) not in selected_items:
+            selected_items.append(str(product_id))
+            session['selected_items'] = selected_items
+        
         flash(f'已将 {quantity} 件商品添加到购物车', 'success')
         return redirect(url_for('cart.list'))
         
     except Exception as e:
-        print(f"Error occurred: {str(e)}")  # 错误信息
+        print(f"Error occurred: {str(e)}")
         db.session.rollback()
         flash('添加到购物车失败，请重试', 'danger')
         return redirect(url_for('product.detail', id=product_id))

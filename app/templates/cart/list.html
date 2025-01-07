@@ -177,6 +177,37 @@ input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
+
+/* 扩大复选框点击区域 */
+.form-check {
+    padding-left: 2rem;  /* 增加左边距 */
+    cursor: pointer;     /* 鼠标变为手型 */
+}
+
+.form-check-input {
+    width: 1.5rem;       /* 增加复选框宽度 */
+    height: 1.5rem;      /* 增加复选框高度 */
+    margin-left: -2rem;  /* 调整位置 */
+    cursor: pointer;     /* 鼠标变为手型 */
+}
+
+/* 让整个区域都可点击 */
+.form-check label {
+    cursor: pointer;
+    padding: 0.5rem;     /* 增加内边距 */
+    margin: -0.5rem;     /* 抵消内边距 */
+    display: block;      /* 块级显示 */
+}
+
+/* 优化复选框样式 */
+.form-check-input:checked {
+    background-color: #0d6efd;  /* 选中时的颜色 */
+    border-color: #0d6efd;
+}
+
+.form-check-input:hover {
+    border-color: #0d6efd;  /* 悬停时的边框颜色 */
+}
 </style>
 
 {% block scripts %}

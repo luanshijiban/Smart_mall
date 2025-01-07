@@ -83,6 +83,21 @@ CREATE TABLE order_item (
     FOREIGN KEY (product_id) REFERENCES product(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 售后表
+CREATE TABLE after_sale (
+    id INT NOT NULL AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    user_id INT NOT NULL,
+    type VARCHAR(20) NOT NULL COMMENT 'return: 退货退款, exchange: 换货',
+    reason TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT 'pending: 待处理, processing: 处理中, completed: 已完成, rejected: 已拒绝',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (order_id) REFERENCES `order`(id),
+    FOREIGN KEY (user_id) REFERENCES user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 select * from user;
 select * from category; 
 select * from product;
