@@ -12,7 +12,12 @@ def list():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     # 计算总金额
     total_amount = sum(item.product.price * item.quantity for item in cart_items)
-    return render_template('cart/list.html', cart_items=cart_items, total_amount=total_amount)
+    # 获取已选中的商品ID列表
+    selected_items = session.get('selected_items', [])
+    return render_template('cart/list.html', 
+                         cart_items=cart_items, 
+                         total_amount=total_amount,
+                         selected_items=selected_items)
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required
@@ -40,20 +45,26 @@ def add_to_cart(product_id):
         )
         db.session.add(cart_item)
     
-    # 在 session 中标记新添加的商品，但不清除其他选中状态
-    session['last_added_item'] = product_id
+    # 在 session 中添加新商品到已选中列表
     if 'selected_items' not in session:
         session['selected_items'] = []
+    selected_items = session['selected_items']
+    if str(product_id) not in selected_items:
+        selected_items.append(str(product_id))
+        session['selected_items'] = selected_items
     
     db.session.commit()
-    flash(f'已将 {quantity} 件商品添加到购物车')
     
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    # 如果是 JSON 请求，返回 JSON 响应
+    if request.is_json:
         return jsonify({
             'status': 'success', 
             'product_id': product_id,
             'checked': True
         })
+    
+    # 否则重定向到购物车页面
+    flash(f'已将 {quantity} 件商品添加到购物车')
     return redirect(url_for('cart.list'))
 
 @cart_bp.route('/update', methods=['POST'])
@@ -75,22 +86,20 @@ def update_cart():
     
     return redirect(url_for('cart.list'))
 
-@cart_bp.route('/delete/<int:product_id>', methods=['POST'])
+@cart_bp.route('/remove', methods=['POST'])
 @login_required
-def delete_from_cart(product_id):
+def remove_from_cart():
+    product_id = request.form.get('product_id')
+    if not product_id:
+        return jsonify({'status': 'error', 'message': '商品ID不能为空'}), 400
+        
     CartItem.query.filter_by(
         user_id=current_user.id,
         product_id=product_id
     ).delete()
     
     db.session.commit()
-    return redirect(url_for('cart.list'))
-
-@cart_bp.route('/cart')
-@login_required
-def view_cart():
-    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('cart/cart.html', cart_items=cart_items)
+    return jsonify({'status': 'success'})
 
 @cart_bp.route('/clear', methods=['POST'])
 @login_required
@@ -107,8 +116,14 @@ def clear_cart():
 @cart_bp.route('/save-selected-items', methods=['POST'])
 @login_required
 def save_selected_items():
-    if request.is_json:
-        data = request.get_json()
-        session['selected_items'] = data.get('selected_items', [])
-        return jsonify({'status': 'success'})
-    return jsonify({'status': 'error'}) 
+    try:
+        if request.is_json:
+            data = request.get_json()
+            selected_items = data.get('selected_items', [])
+            # 确保所有项都是字符串类型
+            selected_items = [str(item) for item in selected_items]
+            session['selected_items'] = selected_items
+            return jsonify({'status': 'success'})
+        return jsonify({'status': 'error', 'message': '无效的请求格式'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}) 

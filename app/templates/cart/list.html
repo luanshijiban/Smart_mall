@@ -42,7 +42,7 @@
                            data-id="{{ item.product_id }}" 
                            data-price="{{ item.product.price }}"
                            data-quantity="{{ item.quantity }}"
-                           {% if session.get('last_added_item') == item.product_id %}checked{% endif %}>
+                           {% if item.product_id|string in selected_items %}checked{% endif %}>
                 </div>
 
                 <!-- 商品图片 -->
@@ -216,6 +216,15 @@ document.addEventListener('DOMContentLoaded', function() {
         countSpan.textContent = count;
         selectedItemsInput.value = selectedItems.join(',');
         checkoutBtn.disabled = selectedItems.length === 0;
+
+        // 保存选中状态到服务器
+        fetch('/cart/save-selected-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selected_items: selectedItems })
+        });
     }
 
     // 全选按钮点击事件
@@ -234,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelection();
     });
 
-    // 单个复选框变化事件
+    // 为每个复选框添加变更事件监听器
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updateSelection);
     });
@@ -289,6 +298,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 更新购物车数量的函数
     function updateCartQuantity(productId, quantity) {
+        // 保存当前选中状态
+        const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+            .map(cb => cb.dataset.id);
+        
         const formData = new FormData();
         formData.append('product_id', productId);
         formData.append('quantity', quantity);
@@ -298,10 +311,46 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         }).then(response => {
             if (response.ok) {
-                location.reload(); // 刷新页面以更新总价
+                // 保存选中状态到 session
+                fetch('/cart/save-selected-items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ selected_items: selectedItems })
+                }).then(() => {
+                    location.reload();
+                });
             }
         });
     }
+
+    // 添加删除商品功能
+    const deleteButtons = document.querySelectorAll('.delete-item');
+    deleteButtons.forEach(button => {
+        // 移除可能存在的旧事件监听器
+        button.replaceWith(button.cloneNode(true));
+    });
+
+    // 重新获取新的按钮并添加事件监听器
+    document.querySelectorAll('.delete-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            if (confirm('确定要删除这个商品吗？')) {
+                const formData = new FormData();
+                formData.append('product_id', productId);
+
+                fetch('/cart/remove', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
