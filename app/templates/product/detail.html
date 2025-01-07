@@ -162,8 +162,8 @@
                             <button class="btn btn-outline-secondary" type="button" id="decrease-quantity">
                                 <i class="bi bi-dash"></i>
                             </button>
-                            <input type="number" class="form-control" id="quantity" name="quantity" 
-                                   value="1" min="1" style="border-left: none; border-right: none;">
+                            <input type="text" class="form-control" id="quantity" name="quantity" 
+                                   value="1" min="1" style="text-align: center; border-left: none; border-right: none;">
                             <button class="btn btn-outline-secondary" type="button" id="increase-quantity">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -188,6 +188,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block scripts %}
 <script>
@@ -195,57 +196,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity');
     const decreaseBtn = document.getElementById('decrease-quantity');
     const increaseBtn = document.getElementById('increase-quantity');
-    const addToCartBtn = document.getElementById('add-to-cart-btn');
 
     // 数量减少按钮
     decreaseBtn?.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        if (value > 1) {
-            quantityInput.value = value - 1;
+        const currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
         }
     });
 
     // 数量增加按钮
     increaseBtn?.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        quantityInput.value = value + 1;
+        const currentValue = parseInt(quantityInput.value) || 1;
+        quantityInput.value = currentValue + 1;
     });
 
     // 直接输入数量时的验证
-    quantityInput?.addEventListener('change', function() {
-        let value = parseInt(this.value);
-        if (isNaN(value) || value < 1) {
+    quantityInput?.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value === '' || parseInt(this.value) < 1) {
             this.value = 1;
         }
     });
-
-    // 加入购物车
-    addToCartBtn?.addEventListener('click', function(e) {
-        e.preventDefault();
-        const quantity = parseInt(quantityInput.value);
-        
-        fetch(`{{ url_for('cart.add_to_cart', product_id=product.id) }}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                quantity: quantity
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                window.location.href = "{{ url_for('cart.list') }}";
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('添加购物车失败，请重试');
-        });
-    });
 });
 </script>
-{% endblock %}
 {% endblock %} 

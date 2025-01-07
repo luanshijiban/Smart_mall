@@ -78,7 +78,7 @@
                         <button class="btn btn-outline-secondary quantity-decrease" type="button">
                             <i class="bi bi-dash"></i>
                         </button>
-                        <input type="number" class="form-control text-center quantity-input" 
+                        <input type="text" class="form-control text-center quantity-input" 
                                value="{{ item.quantity }}" min="1"
                                data-product-id="{{ item.product_id }}">
                         <button class="btn btn-outline-secondary quantity-increase" type="button">
@@ -165,138 +165,143 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
+
+/* 移除数字输入框的上下箭头 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
 </style>
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化所有变量
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const totalSpan = document.getElementById('selected-total');
     const countSpan = document.getElementById('selected-count');
     const checkoutBtn = document.getElementById('checkout-btn');
     const selectedItemsInput = document.getElementById('selected-items-input');
     const selectAllBtn = document.getElementById('select-all-btn');
-    const clearCartBtn = document.getElementById('clear-cart-btn');
+    let isAllSelected = false;
 
-    // 更新总计和选中数量
-    function updateTotal() {
+    // 更新选中状态和总计
+    function updateSelection() {
+        const selectedItems = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+            
         let total = 0;
         let count = 0;
-        let selectedItems = [];
-        
-        checkboxes.forEach(checkbox => {
-            if (checkbox.checked) {
+        selectedItems.forEach(id => {
+            const checkbox = Array.from(checkboxes).find(cb => cb.dataset.id === id);
+            if (checkbox) {
                 const price = parseFloat(checkbox.dataset.price);
                 const quantity = parseInt(checkbox.dataset.quantity);
                 total += price * quantity;
                 count += quantity;
-                selectedItems.push(checkbox.dataset.id);
             }
         });
-
+        
+        // 检查是否所有商品都被选中
+        isAllSelected = selectedItems.length === checkboxes.length;
+        selectAllBtn.innerHTML = `<i class="bi bi-check-square"></i> ${isAllSelected ? '取消全选' : '全选'}`;
+        
         totalSpan.textContent = total.toFixed(2);
         countSpan.textContent = count;
         selectedItemsInput.value = selectedItems.join(',');
         checkoutBtn.disabled = selectedItems.length === 0;
     }
 
-    // 绑定复选框事件
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateTotal);
-    });
-
-    // 全选/取消全选
+    // 全选按钮点击事件
     selectAllBtn.addEventListener('click', function() {
-        const isAllSelected = Array.from(checkboxes).every(cb => cb.checked);
+        isAllSelected = !isAllSelected;
+        
+        // 更新所有复选框
         checkboxes.forEach(checkbox => {
-            checkbox.checked = !isAllSelected;
+            checkbox.checked = isAllSelected;
         });
-        updateTotal();
+        
+        // 更新按钮文本
+        this.innerHTML = `<i class="bi bi-check-square"></i> ${isAllSelected ? '取消全选' : '全选'}`;
+        
+        // 更新总计
+        updateSelection();
     });
 
-    // 清空购物车
-    clearCartBtn.addEventListener('click', function() {
+    // 单个复选框变化事件
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+    });
+
+    // 初始化
+    updateSelection();
+
+    // 添加清空购物车功能
+    const clearCartBtn = document.getElementById('clear-cart-btn');
+    const clearCartForm = document.getElementById('clear-cart-form');
+
+    clearCartBtn.onclick = function() {
         if (confirm('确定要清空购物车吗？')) {
-            document.getElementById('clear-cart-form').submit();
+            clearCartForm.submit();
         }
-    });
+        return false;
+    };
 
-    // 数量增减控制
-    document.querySelectorAll('.quantity-decrease').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('.quantity-input');
-            if (input.value > 1) {
-                input.value = parseInt(input.value) - 1;
-                updateQuantity(input);
+    // 数量控制功能
+    document.querySelectorAll('.cart-item').forEach(item => {
+        const decreaseBtn = item.querySelector('.quantity-decrease');
+        const increaseBtn = item.querySelector('.quantity-increase');
+        const quantityInput = item.querySelector('.quantity-input');
+        const productId = quantityInput.dataset.productId;
+
+        // 减少数量
+        decreaseBtn.onclick = function() {
+            let quantity = parseInt(quantityInput.value);
+            if (quantity > 1) {
+                quantityInput.value = quantity - 1;
+                updateCartQuantity(productId, quantity - 1);
             }
-        });
+        };
+
+        // 增加数量
+        increaseBtn.onclick = function() {
+            let quantity = parseInt(quantityInput.value);
+            quantityInput.value = quantity + 1;
+            updateCartQuantity(productId, quantity + 1);
+        };
+
+        // 直接输入数量
+        quantityInput.onchange = function() {
+            let quantity = parseInt(this.value);
+            if (quantity < 1) {
+                quantity = 1;
+                this.value = 1;
+            }
+            updateCartQuantity(productId, quantity);
+        };
     });
 
-    document.querySelectorAll('.quantity-increase').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('.quantity-input');
-            input.value = parseInt(input.value) + 1;
-            updateQuantity(input);
-        });
-    });
+    // 更新购物车数量的函数
+    function updateCartQuantity(productId, quantity) {
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('quantity', quantity);
 
-    // 更新商品数量
-    function updateQuantity(input) {
-        const productId = input.dataset.productId;
-        const quantity = parseInt(input.value);
-
-        fetch(`/cart/update/${productId}`, {
+        fetch('/cart/update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ quantity: quantity })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                location.reload();
-            } else {
-                alert('更新失败，请重试');
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                location.reload(); // 刷新页面以更新总价
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('更新失败，请重试');
         });
     }
-
-    // 删除商品
-    document.querySelectorAll('.delete-item').forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (confirm('确定要从购物车中移除此商品吗？')) {
-                const productId = this.dataset.productId;
-                fetch(`/cart/delete/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert('删除失败，请重试');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('删除失败，请重试');
-                });
-            }
-        });
-    });
-
-    // 页面加载时更新总计
-    updateTotal();
 });
 </script>
 {% endblock %}
