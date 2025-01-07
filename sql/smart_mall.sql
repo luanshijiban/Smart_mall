@@ -63,6 +63,7 @@ CREATE TABLE `order` (
     receiver_name VARCHAR(50) NOT NULL,
     shipping_address TEXT NOT NULL,
     contact_phone VARCHAR(20) NOT NULL,
+    refund_status VARCHAR(20) DEFAULT 'none' COMMENT 'none: 未退款, pending: 待退款, completed: 已退款',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

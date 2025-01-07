@@ -14,9 +14,14 @@ class Order(db.Model):
     contact_phone = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    refund_status = db.Column(db.String(20), default='none', nullable=False)
 
     user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order', lazy=True)
+
+    @property
+    def can_refund(self):
+        return not self.is_completed and self.refund_status == 'none'
 
 class OrderItem(db.Model):
     __tablename__ = 'order_item'

@@ -79,12 +79,12 @@ def create_order():
         ).delete(synchronize_session=False)
         
         db.session.commit()
-        flash('订单创建成功！')
+        flash('订单创建成功', 'success')
         return redirect(url_for('order.view_orders'))
         
     except Exception as e:
         db.session.rollback()
-        flash('订单创建失败，请重试')
+        flash('订单创建失败，请重试', 'error')
         return redirect(url_for('cart.list'))
 
 @order_bp.route('/list')
@@ -105,21 +105,64 @@ def complete_order(order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
     
     if order.is_completed:
-        flash('订单已经完成')
-        # 获取来源页面
+        flash('订单已经完成', 'info')
         if request.referrer and 'detail' in request.referrer:
             return redirect(url_for('order.detail', order_id=order_id))
         return redirect(url_for('order.view_orders'))
     
-    order.is_completed = True
     try:
+        order.is_completed = True
         db.session.commit()
-        flash('订单已确认收货')
+        flash('订单已确认收货', 'success')
     except:
         db.session.rollback()
-        flash('操作失败，请重试')
+        flash('操作失败，请重试', 'error')
     
-    # 根据来源页面决定重定向
     if request.referrer and 'detail' in request.referrer:
         return redirect(url_for('order.detail', order_id=order_id))
-    return redirect(url_for('order.view_orders')) 
+    return redirect(url_for('order.view_orders'))
+
+@order_bp.route('/refund/<int:order_id>', methods=['POST'])
+@login_required
+def refund_order(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    
+    if not order.can_refund:
+        flash('订单不符合退款条件', 'warning')
+        return redirect(url_for('order.detail', order_id=order_id))
+    
+    try:
+        order.refund_status = 'completed'  # 直接设置为已退款
+        order.status = 'refunded'
+        db.session.commit()
+        flash('退款成功', 'info')
+    except:
+        db.session.rollback()
+        flash('退款失败，请重试', 'error')
+    
+    return redirect(url_for('order.detail', order_id=order_id))
+
+@order_bp.route('/delete/<int:order_id>', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    
+    # 如果订单是待处理状态，不允许删除
+    if not order.is_completed and order.refund_status == 'none':
+        flash('订单正在处理中，无法删除', 'warning')
+        if request.referrer and 'detail' in request.referrer:
+            return redirect(url_for('order.detail', order_id=order_id))
+        return redirect(url_for('order.view_orders'))
+    
+    try:
+        OrderItem.query.filter_by(order_id=order.id).delete()
+        db.session.delete(order)
+        db.session.commit()
+        flash('订单已删除', 'info')
+        return redirect(url_for('order.view_orders'))
+    except:
+        db.session.rollback()
+        flash('删除失败，请重试', 'error')
+        if request.referrer and 'detail' in request.referrer:
+            return redirect(url_for('order.detail', order_id=order_id))
+        return redirect(url_for('order.view_orders')) 

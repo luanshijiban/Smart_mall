@@ -74,11 +74,11 @@
     <div class="row mb-4">
         <div class="col">
             <div class="btn-group">
-                <a href="{{ url_for('cart.list') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-cart"></i> 购物车
+                <a href="{{ url_for('cart.list') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 回到购物车
                 </a>
-                <a href="{{ url_for('product.list') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-shop"></i> 商城首页
+                <a href="{{ url_for('product.list') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-shop"></i> 继续购物
                 </a>
             </div>
         </div>
@@ -95,73 +95,92 @@
     <!-- 订单列表 -->
     <div class="orders-container">
         {% for order in orders %}
-        <div class="card order-card mb-4">
-            <!-- 订单头部 -->
-            <div class="card-header order-header py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="order-number me-3">
-                            <i class="bi bi-hash"></i> {{ order.order_number }}
-                        </span>
-                        <span class="badge {{ 'bg-success' if order.is_completed else 'bg-warning' }} order-status">
-                            {{ '已完成' if order.is_completed else '待处理' }}
-                        </span>
-                    </div>
-                    <span class="order-date text-muted">
-                        <i class="bi bi-clock"></i> {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- 订单内容 -->
+        <div class="card mb-3 order-card">
             <div class="card-body">
-                <div class="row">
-                    <!-- 商品列表 -->
-                    <div class="col-md-8">
-                        {% for item in order.items[:3] %}
-                        <div class="order-item d-flex align-items-center mb-2">
-                            <div class="flex-grow-1">
-                                <a href="{{ url_for('product.detail', id=item.product.id) }}" 
-                                   class="text-decoration-none text-dark">
-                                    <i class="bi bi-box-seam me-2"></i>{{ item.product.name }}
-                                </a>
-                                <span class="badge bg-light text-dark ms-2">× {{ item.quantity }}</span>
-                            </div>
+                <!-- 订单头部信息 -->
+                <div class="order-header mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="order-number">订单号：{{ order.order_number }}</span>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-{{ order.refund_status == 'completed' and 'danger' or 
+                                            order.is_completed and 'success' or 'warning' }} me-2">
+                                <i class="bi bi-{{ order.refund_status == 'completed' and 'arrow-counterclockwise' or
+                                                  order.is_completed and 'check-circle' or 'clock' }}"></i>
+                                {{ order.refund_status == 'completed' and '已退款' or
+                                   order.is_completed and '已完成' or '待处理' }}
+                            </span>
+                            <span class="order-date">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
                         </div>
-                        {% endfor %}
-                        {% if order.items|length > 3 %}
-                        <div class="text-muted mt-2">
-                            <i class="bi bi-three-dots"></i> 等 {{ order.items|length }} 件商品
-                        </div>
-                        {% endif %}
                     </div>
+                </div>
 
-                    <!-- 订单操作 -->
-                    <div class="col-md-4">
+                <!-- 订单商品信息 -->
+                {% for item in order.items %}
+                <div class="order-item mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="{{ item.product.image_url or url_for('static', filename='images/default.png') }}" 
+                             alt="{{ item.product.name }}" 
+                             class="me-3" 
+                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <small class="text-muted">数量：{{ item.quantity }}</small>
+                            <div class="text-primary">¥{{ "%.2f"|format(item.product.price) }}</div>
+                        </div>
                         <div class="text-end">
-                            <div class="order-total mb-3">
+                            <div class="order-total">
                                 总计：¥{{ "%.2f"|format(order.total_amount) }}
                             </div>
-                            <div class="btn-group">
-                                <a href="{{ url_for('order.detail', order_id=order.id) }}" 
-                                   class="btn btn-outline-primary btn-action">
-                                    <i class="bi bi-eye"></i> 查看详情
-                                </a>
-                                {% if not order.is_completed %}
-                                <form method="POST" 
-                                      action="{{ url_for('order.complete_order', order_id=order.id) }}" 
-                                      class="d-inline">
-                                    <button type="submit" 
-                                            class="btn btn-success btn-action ms-2"
-                                            onclick="return confirm('确认已收到商品吗？')">
-                                        <i class="bi bi-check-circle"></i> 确认收货
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 按钮组 -->
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <!-- 左侧按钮 -->
+                        <div class="d-flex gap-2">
+                            <form method="POST" 
+                                  action="{{ url_for('order.delete_order', order_id=order.id) }}">
+                                <button type="submit" 
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('确认要删除此订单吗？')">
+                                    <i class="bi bi-trash"></i> 删除订单
+                                </button>
+                            </form>
+
+                            {% if order.can_refund %}
+                            <form method="POST" 
+                                  action="{{ url_for('order.refund_order', order_id=order.id) }}">
+                                <button type="submit" 
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('确认要申请退款吗？')">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 申请退款
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        <!-- 右侧按钮 -->
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('order.detail', order_id=order.id) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i> 查看详情
+                            </a>
+
+                            {% if not order.is_completed and order.refund_status == 'none' %}
+                            <form method="POST" 
+                                  action="{{ url_for('order.complete_order', order_id=order.id) }}" 
+                                  class="d-inline">
+                                <button type="submit" 
+                                        class="btn btn-success btn-sm"
+                                        onclick="return confirm('确认已收到商品吗？')">
+                                    <i class="bi bi-check-circle"></i> 确认收货
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
         {% endfor %}

@@ -343,9 +343,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch('/cart/remove', {
                     method: 'POST',
                     body: formData
-                }).then(response => {
-                    if (response.ok) {
-                        location.reload();
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // 显示成功消息
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = `alert alert-custom ${data.type} alert-dismissible fade show`;
+                        alertDiv.innerHTML = `
+                            <i class="bi ${data.type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'}"></i>
+                            <strong>${data.type === 'success' ? '成功' : '错误'}：</strong> ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+                        document.body.appendChild(alertDiv);
+                        
+                        // 3秒后自动关闭
+                        setTimeout(() => {
+                            alertDiv.classList.remove('show');
+                            setTimeout(() => alertDiv.remove(), 150);
+                        }, 3000);
+                        
+                        // 刷新页面
+                        setTimeout(() => location.reload(), 500);
                     }
                 });
             }

@@ -73,21 +73,13 @@
                 <h5 class="mb-0">
                     <i class="bi bi-receipt"></i> 订单详情
                 </h5>
-                <div class="d-flex align-items-center">
-                    <span class="badge bg-{{ 'success' if order.is_completed else 'warning' }} me-3">
-                        <i class="bi bi-{{ 'check-circle' if order.is_completed else 'clock' }}"></i>
-                        {{ '已完成' if order.is_completed else '待处理' }}
-                    </span>
-                    {% if not order.is_completed %}
-                    <form method="POST" action="{{ url_for('order.complete_order', order_id=order.id) }}" 
-                          class="d-inline">
-                        <button type="submit" class="btn btn-success btn-sm confirm-btn" 
-                                onclick="return confirm('确认已收到商品吗？')">
-                            <i class="bi bi-check-circle"></i> 确认收货
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
+                <span class="badge bg-{{ order.refund_status == 'completed' and 'danger' or 
+                                order.is_completed and 'success' or 'warning' }}">
+                    <i class="bi bi-{{ order.refund_status == 'completed' and 'arrow-counterclockwise' or
+                                      order.is_completed and 'check-circle' or 'clock' }}"></i>
+                    {{ order.refund_status == 'completed' and '已退款' or
+                       order.is_completed and '已完成' or '待处理' }}
+                </span>
             </div>
         </div>
 
@@ -143,6 +135,41 @@
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <!-- 按钮组 -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <!-- 左侧按钮 -->
+                <div class="d-flex gap-2">
+                    <form method="POST" action="{{ url_for('order.delete_order', order_id=order.id) }}">
+                        <button type="submit" class="btn btn-outline-danger" 
+                                onclick="return confirm('确认要删除此订单吗？')">
+                            <i class="bi bi-trash"></i> 删除订单
+                        </button>
+                    </form>
+
+                    {% if order.can_refund %}
+                    <form method="POST" action="{{ url_for('order.refund_order', order_id=order.id) }}">
+                        <button type="submit" class="btn btn-danger" 
+                                onclick="return confirm('确认要申请退款吗？')">
+                            <i class="bi bi-arrow-counterclockwise"></i> 申请退款
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <!-- 右侧按钮 -->
+                <div>
+                    {% if not order.is_completed and order.refund_status == 'none' %}
+                    <form method="POST" action="{{ url_for('order.complete_order', order_id=order.id) }}" 
+                          class="d-inline">
+                        <button type="submit" class="btn btn-success confirm-btn" 
+                                onclick="return confirm('确认已收到商品吗？')">
+                            <i class="bi bi-check-circle"></i> 确认收货
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

@@ -163,7 +163,7 @@
                                 <i class="bi bi-dash"></i>
                             </button>
                             <input type="text" class="form-control" id="quantity" name="quantity" 
-                                   value="1" min="1" style="text-align: center; border-left: none; border-right: none;">
+                                   value="1" min="1" style="text-align: center;">
                             <button class="btn btn-outline-secondary" type="button" id="increase-quantity">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -172,9 +172,12 @@
 
                     <!-- 操作按钮 -->
                     <div class="action-buttons">
-                        <button class="btn btn-primary" id="add-to-cart-btn" data-product-id="{{ product.id }}">
-                            <i class="bi bi-cart-plus"></i> 加入购物车
-                        </button>
+                        <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                            <input type="hidden" name="quantity" id="quantity-input" value="1">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cart-plus"></i> 加入购物车
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {% else %}
@@ -194,29 +197,36 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity');
-    const decreaseBtn = document.getElementById('decrease-quantity');
-    const increaseBtn = document.getElementById('increase-quantity');
-
+    const quantityInputHidden = document.getElementById('quantity-input');
+    
+    // 设置初始值
+    quantityInputHidden.value = quantityInput.value;
+    
     // 数量减少按钮
-    decreaseBtn?.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        if (currentValue > 1) {
-            quantityInput.value = currentValue - 1;
+    document.getElementById('decrease-quantity').addEventListener('click', function() {
+        let value = parseInt(quantityInput.value) || 1;
+        if (value > 1) {
+            value--;
+            quantityInput.value = value;
+            quantityInputHidden.value = value;
         }
     });
 
     // 数量增加按钮
-    increaseBtn?.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        quantityInput.value = currentValue + 1;
+    document.getElementById('increase-quantity').addEventListener('click', function() {
+        let value = parseInt(quantityInput.value) || 1;
+        value++;
+        quantityInput.value = value;
+        quantityInputHidden.value = value;
     });
 
     // 直接输入数量时的验证
-    quantityInput?.addEventListener('input', function() {
+    quantityInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         if (this.value === '' || parseInt(this.value) < 1) {
             this.value = 1;
         }
+        quantityInputHidden.value = this.value;
     });
 });
 </script>

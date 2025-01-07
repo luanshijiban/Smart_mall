@@ -22,50 +22,40 @@ def list():
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_cart(product_id):
-    product = Product.query.get_or_404(product_id)
-    
-    # 获取数量，如果是JSON请求则从请求体获取，否则默认为1
-    if request.is_json:
-        quantity = request.json.get('quantity', 1)
-    else:
-        quantity = 1
+    try:
+        # 获取数量，从表单中获取
+        quantity = int(request.form.get('quantity', 1))
+        print(f"Debug - Quantity from form: {quantity}")  # 调试信息
+        
+        product = Product.query.get_or_404(product_id)
+        print(f"Debug - Product found: {product.name}")  # 调试信息
 
-    cart_item = CartItem.query.filter_by(
-        user_id=current_user.id,
-        product_id=product_id
-    ).first()
-    
-    if cart_item:
-        cart_item.quantity += quantity
-    else:
-        cart_item = CartItem(
+        cart_item = CartItem.query.filter_by(
             user_id=current_user.id,
-            product_id=product_id,
-            quantity=quantity
-        )
-        db.session.add(cart_item)
-    
-    # 在 session 中添加新商品到已选中列表
-    if 'selected_items' not in session:
-        session['selected_items'] = []
-    selected_items = session['selected_items']
-    if str(product_id) not in selected_items:
-        selected_items.append(str(product_id))
-        session['selected_items'] = selected_items
-    
-    db.session.commit()
-    
-    # 如果是 JSON 请求，返回 JSON 响应
-    if request.is_json:
-        return jsonify({
-            'status': 'success', 
-            'product_id': product_id,
-            'checked': True
-        })
-    
-    # 否则重定向到购物车页面
-    flash(f'已将 {quantity} 件商品添加到购物车')
-    return redirect(url_for('cart.list'))
+            product_id=product_id
+        ).first()
+        
+        if cart_item:
+            cart_item.quantity += quantity
+            print(f"Debug - Updated quantity: {cart_item.quantity}")  # 调试信息
+        else:
+            cart_item = CartItem(
+                user_id=current_user.id,
+                product_id=product_id,
+                quantity=quantity
+            )
+            db.session.add(cart_item)
+            print(f"Debug - New cart item created")  # 调试信息
+        
+        db.session.commit()
+        flash(f'已将 {quantity} 件商品添加到购物车', 'success')
+        return redirect(url_for('cart.list'))
+        
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")  # 错误信息
+        db.session.rollback()
+        flash('添加到购物车失败，请重试', 'danger')
+        return redirect(url_for('product.detail', id=product_id))
 
 @cart_bp.route('/update', methods=['POST'])
 @login_required
@@ -93,13 +83,36 @@ def remove_from_cart():
     if not product_id:
         return jsonify({'status': 'error', 'message': '商品ID不能为空'}), 400
         
-    CartItem.query.filter_by(
-        user_id=current_user.id,
-        product_id=product_id
-    ).delete()
-    
-    db.session.commit()
-    return jsonify({'status': 'success'})
+    try:
+        product = CartItem.query.filter_by(
+            user_id=current_user.id,
+            product_id=product_id
+        ).first()
+        
+        if product:
+            CartItem.query.filter_by(
+                user_id=current_user.id,
+                product_id=product_id
+            ).delete()
+            db.session.commit()
+            return jsonify({
+                'status': 'success',
+                'message': '商品已从购物车中移除',
+                'type': 'success'
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': '商品不存在',
+                'type': 'error'
+            })
+    except:
+        db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': '删除失败，请重试',
+            'type': 'error'
+        })
 
 @cart_bp.route('/clear', methods=['POST'])
 @login_required
@@ -107,10 +120,10 @@ def clear_cart():
     try:
         CartItem.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
-        flash('购物车已清空')
-    except Exception as e:
+        flash('购物车已清空', 'success')
+    except:
         db.session.rollback()
-        flash('清空购物车失败，请重试')
+        flash('清空购物车失败，请重试', 'error')
     return redirect(url_for('cart.list'))
 
 @cart_bp.route('/save-selected-items', methods=['POST'])
