@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}商品列表 - 智慧商城{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/product.css') }}" rel="stylesheet">
+<style>
+    .product-grid {
+        margin-top: 20px;
+    }
+    .card {
+        margin-bottom: 20px;
+    }
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 搜索和分类区域 -->
+    <div class="row mb-4">
+        <div class="col">
+            <!-- 搜索栏 -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-grid-3x3-gap-fill"></i> 
+                    {{ "搜索结果" if keyword else "全部商品" }}
+                </h4>
+                <form class="d-flex search-box" method="GET" action="{{ url_for('product.list') }}">
+                    {% if category_id %}
+                    <input type="hidden" name="category_id" value="{{ category_id }}">
+                    {% endif %}
+                    <div class="input-group">
+                        <input class="form-control" type="text" name="keyword" 
+                               placeholder="搜索商品..." value="{{ keyword if keyword }}">
+                        {% if keyword %}
+                        <a href="{{ url_for('product.list', category_id=category_id) }}" 
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 分类按钮组 -->
+            <div class="category-group">
+                <div class="d-flex flex-wrap">
+                    <a href="{{ url_for('product.list', keyword=keyword) }}" 
+                       class="btn btn-outline-primary {% if not category_id %}active{% endif %}">
+                        全部分类
+                    </a>
+                    {% for category in categories[:5] %}
+                    <a href="{{ url_for('product.list', category_id=category.id, keyword=keyword) }}" 
+                       class="btn btn-outline-primary {% if category_id == category.id %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                    
+                    {% if categories|length > 5 %}
+                    <button class="btn btn-outline-primary" id="showMoreBtn">
+                        更多分类 <i class="bi bi-chevron-down"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- 更多分类 -->
+                <div id="moreCategories" class="mt-2" style="display: none;">
+                    <div class="d-flex flex-wrap">
+                        {% for category in categories[5:] %}
+                        <a href="{{ url_for('product.list', category_id=category.id, keyword=keyword) }}" 
+                           class="btn btn-outline-primary {% if category_id == category.id %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card product-card h-100">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                    <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ product.name }}</h5>
+                    <p class="card-text text-muted small">
+                        <i class="bi bi-tag"></i> {{ product.category.name }}
+                    </p>
+                    <p class="product-price mb-3">¥{{ "%.2f"|format(product.price) }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('product.detail', id=product.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> 查看详情
+                        </a>
+                        {% if current_user.is_authenticated %}
+                        <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-cart-plus"></i> 加入购物车
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-box-arrow-in-right"></i> 登录后购买
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
+            <h5 class="mt-3">{{ "未找到相关商品" if keyword else "暂无商品" }}</h5>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页导航 -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <div class="d-flex justify-content-center align-items-center pagination-custom">
+            <a class="btn btn-outline-primary me-3 {% if pagination.page == 1 %}disabled{% endif %}" 
+               href="{{ url_for('product.list', page=pagination.prev_num) }}">
+                <i class="bi bi-chevron-left"></i> 上一页
+            </a>
+
+            <div class="d-flex align-items-center">
+                <span class="me-2">第</span>
+                <input type="text" id="pageInput" class="form-control" 
+                       value="{{ pagination.page }}" 
+                       min="1" 
+                       max="{{ pagination.pages }}"
+                       data-current-page="{{ pagination.page }}">
+                <span class="ms-2">/ {{ pagination.pages }} 页</span>
+            </div>
+
+            <a class="btn btn-outline-primary ms-3 {% if pagination.page == pagination.pages %}disabled{% endif %}" 
+               href="{{ url_for('product.list', page=pagination.next_num) }}">
+                下一页 <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 分页输入处理
+    const pageInput = document.getElementById('pageInput');
+    if (pageInput) {
+        const maxPages = pageInput.getAttribute('max');
+        
+        pageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const page = parseInt(this.value);
+                
+                if (page >= 1 && page <= maxPages) {
+                    window.location.href = window.location.pathname + "?page=" + page;
+                } else {
+                    alert('请输入有效的页码（1-' + maxPages + '）');
+                    this.value = this.getAttribute('data-current-page');
+                }
+            }
+        });
+
+        pageInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value === '') return;
+            
+            const page = parseInt(this.value);
+            
+            if (page > maxPages) {
+                this.value = maxPages;
+            } else if (page < 1) {
+                this.value = 1;
+            }
+        });
+    }
+
+    // 分类展开/收起功能
+    const showMoreBtn = document.getElementById('showMoreBtn');
+    const moreCategories = document.getElementById('moreCategories');
+    
+    if (showMoreBtn && moreCategories) {
+        console.log('Found elements:', { showMoreBtn, moreCategories }); // 调试日志
+        
+        // 更新按钮状态的辅助函数
+        function updateButtonState(isExpanded) {
+            showMoreBtn.innerHTML = `${isExpanded ? '收起' : '更多分类'} <i class="bi bi-chevron-${isExpanded ? 'up' : 'down'}"></i>`;
+        }
+
+        // 从 localStorage 获取展开状态
+        const isExpanded = localStorage.getItem('categoriesExpanded') === 'true';
+        
+        // 设置初始状态
+        moreCategories.style.display = isExpanded ? 'block' : 'none';
+        updateButtonState(isExpanded);
+        
+        // 点击事件处理
+        showMoreBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // 防止可能的页面跳转
+            console.log('Button clicked'); // 调试日志
+            
+            const isCurrentlyHidden = moreCategories.style.display === 'none';
+            moreCategories.style.display = isCurrentlyHidden ? 'block' : 'none';
+            updateButtonState(isCurrentlyHidden);
+            localStorage.setItem('categoriesExpanded', isCurrentlyHidden);
+        });
+    }
+});
+</script>
+{% endblock %} 

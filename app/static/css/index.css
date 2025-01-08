@@ -1,0 +1,172 @@
+/* 重置基础样式 */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* 英雄区样式 */
+.hero-section {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('../images/back.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    margin-top: -80px;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding-top: 80px;
+}
+
+.hero-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    z-index: 1;
+}
+
+/* 标题样式 */
+.hero-title {
+    font-family: "华文行楷", "楷体", serif;
+    font-size: 4rem;
+    color: #FFD700;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 1.5s ease-out;
+}
+
+/* 副标题样式 */
+.hero-subtitle {
+    font-family: "幼圆", "Microsoft YaHei", sans-serif;
+    font-size: 1.75rem;
+    color: #E0FFFF;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+    margin-bottom: 3rem;
+    animation: fadeIn 2s ease-out;
+}
+
+/* 按钮样式 */
+.cta-button {
+    padding: 1rem 2.5rem;
+    font-size: 1.25rem;
+    background: linear-gradient(135deg, #00BFFF, #1E90FF);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    animation: fadeInUp 1.5s ease-out;
+}
+
+.cta-button:hover {
+    background: linear-gradient(135deg, #1E90FF, #4169E1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(30, 144, 255, 0.5);
+    color: white;
+}
+
+/* 特色区域样式 */
+.features-section {
+    background-color: #f8f9fa;
+    padding: 4rem 0;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #1E90FF;
+    margin-bottom: 1.5rem;
+}
+
+.feature-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.feature-card p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+/* 动画效果 */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .cta-button {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .features-section {
+        padding: 2rem 0;
+    }
+    
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+} 

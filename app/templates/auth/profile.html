@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}我的信息 - 智慧商城{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/profile.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="card profile-card">
+        <h2 class="profile-title">我的信息</h2>
+        
+        <!-- 查看信息部分 -->
+        <div class="view-info" id="viewInfo">
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-person"></i> 用户名
+                </div>
+                <div class="info-value">{{ current_user.username }}</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-person-badge"></i> 真实姓名
+                </div>
+                <div class="info-value">
+                    {% if current_user.real_name %}
+                        {{ current_user.real_name }}
+                    {% else %}
+                        <span class="info-empty">未设置</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-telephone"></i> 联系电话
+                </div>
+                <div class="info-value">
+                    {% if current_user.phone %}
+                        {{ current_user.phone }}
+                    {% else %}
+                        <span class="info-empty">未设置</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-primary btn-edit" onclick="toggleEdit('info')">
+                    <i class="bi bi-pencil-square"></i> 修改信息
+                </button>
+                <button type="button" class="btn btn-warning btn-edit" onclick="toggleEdit('password')">
+                    <i class="bi bi-key"></i> 修改密码
+                </button>
+            </div>
+        </div>
+
+        <!-- 修改信息表单 -->
+        <form method="POST" action="{{ url_for('auth.profile') }}" class="edit-form" id="infoForm">
+            {{ info_form.hidden_tag() }}
+            
+            <div class="form-floating mb-3">
+                {{ info_form.realname(class="form-control", placeholder="真实姓名") }}
+                <label for="realname">真实姓名</label>
+                {% for error in info_form.realname.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ info_form.phone(class="form-control", placeholder="联系电话") }}
+                <label for="phone">联系电话</label>
+                {% for error in info_form.phone.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-outline-secondary" onclick="toggleEdit()">
+                    <i class="bi bi-x-circle"></i> 取消
+                </button>
+                {{ info_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+
+        <!-- 修改密码表单 -->
+        <form method="POST" action="{{ url_for('auth.profile') }}" class="edit-form" id="passwordForm">
+            {{ password_form.hidden_tag() }}
+            
+            <div class="form-floating mb-3">
+                {{ password_form.old_password(class="form-control", placeholder="当前密码") }}
+                <label for="old_password">当前密码</label>
+                {% for error in password_form.old_password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ password_form.password(class="form-control", placeholder="新密码") }}
+                <label for="password">新密码</label>
+                {% for error in password_form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ password_form.password2(class="form-control", placeholder="确认新密码") }}
+                <label for="password2">确认新密码</label>
+                {% for error in password_form.password2.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-outline-secondary" onclick="toggleEdit()">
+                    <i class="bi bi-x-circle"></i> 取消
+                </button>
+                {{ password_form.submit(class="btn btn-warning") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function toggleEdit(formType) {
+    const viewInfo = document.getElementById('viewInfo');
+    const infoForm = document.getElementById('infoForm');
+    const passwordForm = document.getElementById('passwordForm');
+    
+    if (!formType) {
+        // 取消按钮被点击，清除 session 中的状态
+        fetch("{{ url_for('auth.profile') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({clear_form: true})
+        });
+        
+        viewInfo.classList.remove('hidden');
+        infoForm.classList.remove('active');
+        passwordForm.classList.remove('active');
+        return;
+    }
+    
+    // 设置 session 状态
+    fetch("{{ url_for('auth.profile') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            set_form_type: true,
+            form_type: formType
+        })
+    });
+    
+    viewInfo.classList.add('hidden');
+    if (formType === 'info') {
+        infoForm.classList.add('active');
+        passwordForm.classList.remove('active');
+    } else {
+        passwordForm.classList.add('active');
+        infoForm.classList.remove('active');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formType = '{{ form_type if form_type else "" }}';
+    if (formType) {
+        toggleEdit(formType);
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,111 @@
+/* 售后申请卡片样式 */
+.after-sale-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.after-sale-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 卡片头部样式 */
+.card-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem;
+}
+
+.card-header h5 {
+    color: #2c3e50;
+}
+
+/* 表单样式 */
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+/* 单选按钮组样式 */
+.form-check {
+    margin-bottom: 0.5rem;
+    padding-left: 2rem;
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-label {
+    cursor: pointer;
+    color: #495057;
+}
+
+/* 文本域样式 */
+.form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #0d6efd;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #0b5ed7;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .text-end {
+        text-align: center !important;
+    }
+} 

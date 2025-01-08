@@ -1,0 +1,116 @@
+/* 订单卡片基础样式 */
+.order-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 商品项目样式 */
+.product-item {
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.product-item:hover {
+    background-color: #f8f9fa;
+}
+
+.product-item h6 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+/* 卡片头部样式 */
+.card-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem;
+}
+
+/* 表单样式 */
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* 总价格样式 */
+.total-price {
+    font-size: 2rem;
+    color: #dc3545;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 提交按钮样式 */
+.submit-btn {
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+/* 返回按钮样式 */
+.btn-outline-secondary {
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* 分隔线样式 */
+hr {
+    opacity: 0.1;
+    margin: 1rem 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .sticky-top {
+        position: relative !important;
+        top: 0 !important;
+        margin-top: 1rem;
+    }
+    
+    .total-price {
+        font-size: 1.5rem;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        margin-top: 1rem;
+    }
+} 

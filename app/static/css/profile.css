@@ -1,0 +1,116 @@
+/* 个人信息卡片容器 */
+.profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.profile-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.profile-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    margin: 10px auto 0;
+    border-radius: 3px;
+}
+
+/* 查看信息部分 */
+.view-info {
+    padding: 1rem;
+}
+
+.view-info.hidden {
+    display: none;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.info-label {
+    width: 120px;
+    color: #666;
+    font-weight: 500;
+}
+
+.info-value {
+    flex: 1;
+    color: #2c3e50;
+}
+
+.info-empty {
+    color: #999;
+    font-style: italic;
+}
+
+/* 编辑表单部分 */
+.edit-form {
+    display: none;
+    padding: 1rem;
+}
+
+.edit-form.active {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* 按钮样式 */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-edit {
+    min-width: 120px;
+}
+
+/* 表单样式 */
+.form-floating {
+    margin-bottom: 1.2rem;
+}
+
+.form-floating > .form-control {
+    border-radius: 8px;
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+} 

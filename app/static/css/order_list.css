@@ -1,0 +1,85 @@
+/* 订单卡片样式 */
+.order-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.order-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.order-number {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.order-status {
+    font-weight: 500;
+}
+
+.order-date {
+    font-size: 0.85rem;
+}
+
+/* 订单项目样式 */
+.order-item {
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.order-item:hover {
+    background-color: #f8f9fa;
+}
+
+.order-total {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* 按钮样式 */
+.btn-action {
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+}
+
+/* 空订单提示 */
+.empty-orders {
+    padding: 3rem;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 15px;
+    margin: 2rem 0;
+}
+
+/* 商品图片样式 */
+.order-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* 按钮组样式 */
+.order-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-actions .btn-group {
+    gap: 0.5rem;
+} 

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - 智慧商城{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="card auth-card">
+        <h2 class="auth-title">用户注册</h2>
+        
+        <div class="required-hint mb-3">
+            <small class="text-muted"><span class="text-danger">*</span> 标记为必填项</small>
+        </div>
+        
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-floating">
+                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="用户名") }}
+                <label for="username" class="required">用户名</label>
+                {% for error in form.username.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-info-circle"></i> 字母、数字、下划线组成
+                </div>
+            </div>
+
+            <div class="form-floating">
+                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="密码") }}
+                <label for="password" class="required">密码</label>
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-shield-lock"></i> 请设置安全的登录密码
+                </div>
+            </div>
+
+            <div class="form-floating">
+                {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else ""), placeholder="确认密码") }}
+                <label for="password2" class="required">确认密码</label>
+                {% for error in form.password2.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-check2-circle"></i> 请再次输入密码
+                </div>
+            </div>
+
+            <div class="form-floating">
+                {{ form.realname(class="form-control" + (" is-invalid" if form.realname.errors else ""), placeholder="真实姓名") }}
+                <label for="realname">真实姓名</label>
+                {% for error in form.realname.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-person"></i> 请输入您的真实姓名
+                </div>
+            </div>
+
+            <div class="form-floating">
+                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="联系电话") }}
+                <label for="phone">联系电话</label>
+                {% for error in form.phone.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-telephone"></i> 请输入有效的联系方式（选填）
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">
+                <i class="bi bi-person-plus"></i> 提交注册
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{{ url_for('auth.login') }}">
+                <i class="bi bi-box-arrow-in-right"></i> 已有账号？立即登录
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

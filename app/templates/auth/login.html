@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - 智慧商城{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="card auth-card">
+        <h2 class="auth-title">用户登录</h2>
+        
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-floating">
+                {{ form.username(class="form-control", placeholder="用户名") }}
+                <label for="username">用户名</label>
+                {% for error in form.username.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-person"></i> 请输入您的用户名
+                </div>
+            </div>
+
+            <div class="form-floating">
+                {{ form.password(class="form-control", placeholder="密码") }}
+                <label for="password">密码</label>
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-hint">
+                    <i class="bi bi-shield-lock"></i> 请输入您的密码
+                </div>
+            </div>
+
+            <div class="remember-me">
+                <div class="form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    <label class="form-check-label" for="remember_me">
+                        <i class="bi bi-clock-history"></i> 记住我
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">
+                <i class="bi bi-box-arrow-in-right"></i> 登录
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{{ url_for('auth.register') }}">
+                <i class="bi bi-person-plus"></i> 还没有账号？立即注册
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

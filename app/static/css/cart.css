@@ -1,0 +1,83 @@
+/* 购物车项目样式 */
+.cart-item {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.cart-item-image img {
+    transition: transform 0.3s ease;
+}
+
+.cart-item-image img:hover {
+    transform: scale(1.05);
+}
+
+/* 数量输入框样式 */
+.quantity-input {
+    border-left: none;
+    border-right: none;
+}
+
+.quantity-input:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+/* 结算按钮样式 */
+#checkout-btn {
+    transition: all 0.3s ease;
+}
+
+#checkout-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* 移除数字输入框的上下箭头 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* 扩大复选框点击区域 */
+.form-check {
+    padding-left: 2rem;
+    cursor: pointer;
+}
+
+.form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: -2rem;
+    cursor: pointer;
+}
+
+/* 让整个区域都可点击 */
+.form-check label {
+    cursor: pointer;
+    padding: 0.5rem;
+    margin: -0.5rem;
+    display: block;
+}
+
+/* 优化复选框样式 */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-input:hover {
+    border-color: #0d6efd;
+} 

@@ -1,0 +1,101 @@
+/* 订单卡片样式 */
+.order-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 订单头部样式 */
+.order-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem;
+}
+
+/* 订单信息区域 */
+.order-info {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-info p {
+    margin-bottom: 0.5rem;
+}
+
+/* 售后信息样式 */
+.after-sale-info {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+/* 表格样式 */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+}
+
+/* 商品链接样式 */
+.product-link {
+    color: #2c3e50;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.product-link:hover {
+    color: #0d6efd;
+}
+
+/* 总金额样式 */
+.total-amount {
+    font-size: 1.2rem;
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* 按钮样式 */
+.btn-action {
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+}
+
+.confirm-btn {
+    transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+/* 按钮组样式 */
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .order-info {
+        padding: 1rem;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+} 

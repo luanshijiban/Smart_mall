@@ -1,0 +1,77 @@
+/* 导航栏样式 */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* 主容器上边距 */
+.main-container {
+    margin-top: 80px;
+    min-height: calc(100vh - 160px);
+}
+
+/* 页脚样式 */
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* Flash 消息样式 */
+.alert-custom {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    min-width: 300px;
+    max-width: 500px;
+    border: 2px solid;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideDown 0.5s ease-out;
+    background-color: #fff;
+}
+
+.alert-custom.error {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.alert-custom.success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.alert-custom.info {
+    border-color: #0dcaf0;
+    color: #0dcaf0;
+}
+
+.alert-custom.warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.alert-custom .close {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.alert-custom .close:hover {
+    opacity: 1;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+} 
