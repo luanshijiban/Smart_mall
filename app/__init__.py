@@ -6,6 +6,8 @@ from config import Config
 # 创建数据库实例
 db = SQLAlchemy()
 login_manager = LoginManager()
+login_manager.login_message = '请先登录后再访问此页面'
+login_manager.login_message_category = 'info'
 
 def create_app():
     app = Flask(__name__)

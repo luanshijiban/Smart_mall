@@ -121,6 +121,13 @@
                             <i class="bi bi-box"></i> 我的订单
                         </a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.profile') }}">
+                            <i class="bi bi-person-circle"></i> 我的信息
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
                 
                 <!-- 右侧用户菜单 -->
@@ -132,6 +139,11 @@
                             <i class="bi bi-person-circle"></i> {{ current_user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="bi bi-person-circle"></i> 我的信息
+                                </a>
+                            </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('cart.list') }}">
                                     <i class="bi bi-cart"></i> 购物车

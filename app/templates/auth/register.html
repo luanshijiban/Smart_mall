@@ -118,6 +118,17 @@
             transform: translateY(0);
         }
     }
+
+    .required-hint {
+        text-align: right;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .required::after {
+        content: " *";
+        color: #dc3545;
+    }
 </style>
 {% endblock %}
 
@@ -126,11 +137,15 @@
     <div class="card auth-card">
         <h2 class="auth-title">用户注册</h2>
         
+        <div class="required-hint mb-3">
+            <small class="text-muted"><span class="text-danger">*</span> 标记为必填项</small>
+        </div>
+        
         <form method="POST" action="{{ url_for('auth.register') }}">
             {{ form.hidden_tag() }}
             
             <div class="form-floating">
-                {{ form.username(class="form-control", placeholder="用户名") }}
+                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="用户名") }}
                 <label for="username" class="required">用户名</label>
                 {% for error in form.username.errors %}
                     <div class="invalid-feedback">{{ error }}</div>
@@ -141,7 +156,7 @@
             </div>
 
             <div class="form-floating">
-                {{ form.password(class="form-control", placeholder="密码") }}
+                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="密码") }}
                 <label for="password" class="required">密码</label>
                 {% for error in form.password.errors %}
                     <div class="invalid-feedback">{{ error }}</div>
@@ -152,7 +167,7 @@
             </div>
 
             <div class="form-floating">
-                {{ form.password2(class="form-control", placeholder="确认密码") }}
+                {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else ""), placeholder="确认密码") }}
                 <label for="password2" class="required">确认密码</label>
                 {% for error in form.password2.errors %}
                     <div class="invalid-feedback">{{ error }}</div>
@@ -163,18 +178,24 @@
             </div>
 
             <div class="form-floating">
-                {{ form.realname(class="form-control", placeholder="真实姓名") }}
+                {{ form.realname(class="form-control" + (" is-invalid" if form.realname.errors else ""), placeholder="真实姓名") }}
                 <label for="realname">真实姓名</label>
+                {% for error in form.realname.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
                 <div class="form-hint">
                     <i class="bi bi-person"></i> 请输入您的真实姓名
                 </div>
             </div>
 
             <div class="form-floating">
-                {{ form.phone(class="form-control", placeholder="联系电话") }}
+                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="联系电话") }}
                 <label for="phone">联系电话</label>
+                {% for error in form.phone.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
                 <div class="form-hint">
-                    <i class="bi bi-telephone"></i> 请输入有效的联系方式
+                    <i class="bi bi-telephone"></i> 请输入有效的联系方式（选填）
                 </div>
             </div>
 
