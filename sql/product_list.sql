@@ -24,7 +24,7 @@ INSERT INTO product (sku, name, manufacturer, price, description, stock, categor
 ('EP002', 'iPhone 15 Pro', 'Apple', 8999.00, '256GB，暗夜紫色，A17芯片', 200, 1, 'https://www.helloimg.com/i/2025/01/08/677def033005b.png'),
 ('EP003', 'iPad Air 5', 'Apple', 4799.00, 'M1芯片，8GB内存，256GB存储', 150, 1, 'https://www.helloimg.com/i/2025/01/08/677de8a261d54.png'),
 ('EP004', 'Galaxy S23 Ultra', 'Samsung', 8999.00, '12GB+256GB，骁龙8 Gen 2', 100, 1, 'https://www.helloimg.com/i/2025/01/08/677de8a343e66.png'),
-('EP005', 'ThinkPad X1 Carbon', 'Lenovo', 9999.00, '英特尔i7，16GB内存，1TB固态', 80, 1, 'https://www.helloimg.com/i/2025/01/08/677decc7ec85a.png');
+('EP005', 'ThinkPad X1 Carbon', 'Lenovo', 9999.00, '英特尔i7，16GB内存，1TB固态', 80, 1, 'https://www.helloimg.com/i/2025/01/08/677df1d63403b.png');
 
 -- 家用电器 (category_id = 2)
 INSERT INTO product (sku, name, manufacturer, price, description, stock, category_id, image_url) VALUES
