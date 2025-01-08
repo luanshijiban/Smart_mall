@@ -20,24 +20,24 @@ INSERT INTO category (name, description) VALUES
 -- 插入商品数据
 -- 电子产品 (category_id = 1)
 INSERT INTO product (sku, name, manufacturer, price, description, stock, category_id, image_url) VALUES
-('EP001', 'MacBook Pro 14英寸', 'Apple', 12999.00, 'M2芯片，16GB内存，512GB固态硬盘', 100, 1, NULL),
-('EP002', 'iPhone 15 Pro', 'Apple', 8999.00, '256GB，暗夜紫色，A17芯片', 200, 1, NULL),
-('EP003', 'iPad Air 5', 'Apple', 4799.00, 'M1芯片，8GB内存，256GB存储', 150, 1, NULL),
-('EP004', 'Galaxy S23 Ultra', 'Samsung', 8999.00, '12GB+256GB，骁龙8 Gen 2', 100, 1, NULL),
-('EP005', 'ThinkPad X1 Carbon', 'Lenovo', 9999.00, '英特尔i7，16GB内存，1TB固态', 80, 1, NULL);
+('EP001', 'MacBook Pro 14英寸', 'Apple', 12999.00, 'M2芯片，16GB内存，512GB固态硬盘', 100, 1, 'https://www.helloimg.com/i/2025/01/08/677dec28ce3cc.png'),
+('EP002', 'iPhone 15 Pro', 'Apple', 8999.00, '256GB，暗夜紫色，A17芯片', 200, 1, 'https://www.helloimg.com/i/2025/01/08/677def033005b.png'),
+('EP003', 'iPad Air 5', 'Apple', 4799.00, 'M1芯片，8GB内存，256GB存储', 150, 1, 'https://www.helloimg.com/i/2025/01/08/677de8a261d54.png'),
+('EP004', 'Galaxy S23 Ultra', 'Samsung', 8999.00, '12GB+256GB，骁龙8 Gen 2', 100, 1, 'https://www.helloimg.com/i/2025/01/08/677de8a343e66.png'),
+('EP005', 'ThinkPad X1 Carbon', 'Lenovo', 9999.00, '英特尔i7，16GB内存，1TB固态', 80, 1, 'https://www.helloimg.com/i/2025/01/08/677decc7ec85a.png');
 
 -- 家用电器 (category_id = 2)
 INSERT INTO product (sku, name, manufacturer, price, description, stock, category_id, image_url) VALUES
-('HA001', '智能变频空调', '格力', 3999.00, '1.5匹，节能静音，智能控制', 50, 2, NULL),
-('HA002', '对开门冰箱', '海尔', 4599.00, '501升，风冷无霜，智能控温', 30, 2, NULL),
-('HA003', '全自动洗衣机', '西门子', 3799.00, '9kg，变频节能，静音设计', 40, 2, NULL),
-('HA004', '智能电视', '小米', 2999.00, '55英寸4K高清，AI语音控制', 60, 2, NULL),
-('HA005', '嵌入式烤箱', '方太', 3599.00, '70L大容量，多功能烘焙', 25, 2, NULL);
+('HA001', '智能变频空调', '格力', 3999.00, '1.5匹，节能静音，智能控制', 50, 2, 'https://www.helloimg.com/i/2025/01/08/677dec8fbbb9b.png'),
+('HA002', '对开门冰箱', '海尔', 4599.00, '501升，风冷无霜，智能控温', 30, 2, 'https://www.helloimg.com/i/2025/01/08/677decc774bdc.png'),
+('HA003', '全自动洗衣机', '西门子', 3799.00, '9kg，变频节能，静音设计', 40, 2, 'https://www.helloimg.com/i/2025/01/08/677dec67d4cfa.png'),
+('HA004', '智能电视', '小米', 2999.00, '55英寸4K高清，AI语音控制', 60, 2, 'https://www.helloimg.com/i/2025/01/08/677dec4841353.png'),
+('HA005', '嵌入式烤箱', '方太', 3599.00, '70L大容量，多功能烘焙', 25, 2, 'https://www.helloimg.com/i/2025/01/08/677ded145db0a.png');
 
 -- 服饰 (category_id = 3)
 INSERT INTO product (sku, name, manufacturer, price, description, stock, category_id, image_url) VALUES
-('CL001', '羽绒服', 'The North Face', 1999.00, '800蓬松度鹅绒，防水透气', 100, 3, NULL),
-('CL002', '牛仔裤', 'Levi\'s', 599.00, '修身直筒，经典蓝色', 200, 3, NULL),
+('CL001', '羽绒服', 'The North Face', 1999.00, '800蓬松度鹅绒，防水透气', 100, 3, 'https://www.helloimg.com/i/2025/01/08/677dec941d78f.png'),
+('CL002', '牛仔裤', 'Levi\'s', 599.00, '修身直筒，经典蓝色', 200, 3, 'https://www.helloimg.com/i/2025/01/08/677deda9dc205.png'),
 ('CL003', '运动鞋', 'Nike', 899.00, 'Air Max系列，缓震舒适', 150, 3, NULL),
 ('CL004', '真皮皮带', 'Gucci', 2999.00, '头层牛皮，双G扣头', 50, 3, NULL),
 ('CL005', '羊毛大衣', 'Burberry', 12999.00, '英伦风格，经典格纹', 30, 3, NULL);
