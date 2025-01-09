@@ -91,6 +91,7 @@ def profile():
             db.session.commit()
             flash('个人信息更新成功', 'success')
             session.pop('form_type', None)  # 成功后清除状态
+            return redirect(url_for('auth.profile'))  # 添加重定向
         except:
             db.session.rollback()
             flash('更新失败，请重试', 'error')
@@ -98,7 +99,6 @@ def profile():
     if password_form.submit.data and password_form.validate():
         if not current_user.check_password(password_form.old_password.data):
             flash('当前密码错误', 'error')
-        # 检查新密码是否与原密码相同
         elif current_user.check_password(password_form.password.data):
             flash('新密码不能与当前密码相同', 'error')
         else:
@@ -107,6 +107,7 @@ def profile():
                 db.session.commit()
                 flash('密码修改成功', 'success')
                 session.pop('form_type', None)  # 成功后清除状态
+                return redirect(url_for('auth.profile'))  # 添加重定向
             except:
                 db.session.rollback()
                 flash('修改失败，请重试', 'error')

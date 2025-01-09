@@ -1,16 +1,13 @@
 {% extends "base.html" %}
-
 {% block title %}我的信息 - 智慧商城{% endblock %}
-
 {% block styles %}
 <link href="{{ url_for('static', filename='css/profile.css') }}" rel="stylesheet">
 {% endblock %}
-
 {% block content %}
 <div class="profile-container">
     <div class="card profile-card">
         <h2 class="profile-title">我的信息</h2>
-        
+
         <!-- 查看信息部分 -->
         <div class="view-info" id="viewInfo">
             <div class="info-item">
@@ -19,7 +16,7 @@
                 </div>
                 <div class="info-value">{{ current_user.username }}</div>
             </div>
-            
+
             <div class="info-item">
                 <div class="info-label">
                     <i class="bi bi-person-badge"></i> 真实姓名
@@ -32,7 +29,7 @@
                     {% endif %}
                 </div>
             </div>
-            
+
             <div class="info-item">
                 <div class="info-label">
                     <i class="bi bi-telephone"></i> 联系电话
@@ -57,9 +54,13 @@
         </div>
 
         <!-- 修改信息表单 -->
-        <form method="POST" action="{{ url_for('auth.profile') }}" class="edit-form" id="infoForm">
+        <form method="POST" 
+              action="{{ url_for('auth.profile', next='view') }}" 
+              class="edit-form {% if form_type == 'info' %}active{% endif %}" 
+              id="infoForm">
             {{ info_form.hidden_tag() }}
-            
+            <input type="hidden" name="form_type" value="info">
+
             <div class="form-floating mb-3">
                 {{ info_form.realname(class="form-control", placeholder="真实姓名") }}
                 <label for="realname">真实姓名</label>
@@ -85,9 +86,13 @@
         </form>
 
         <!-- 修改密码表单 -->
-        <form method="POST" action="{{ url_for('auth.profile') }}" class="edit-form" id="passwordForm">
+        <form method="POST" 
+              action="{{ url_for('auth.profile', next='view') }}" 
+              class="edit-form {% if form_type == 'password' %}active{% endif %}" 
+              id="passwordForm">
             {{ password_form.hidden_tag() }}
-            
+            <input type="hidden" name="form_type" value="password">
+
             <div class="form-floating mb-3">
                 {{ password_form.old_password(class="form-control", placeholder="当前密码") }}
                 <label for="old_password">当前密码</label>
@@ -124,55 +129,59 @@
 
 {% block scripts %}
 <script>
-function toggleEdit(formType) {
-    const viewInfo = document.getElementById('viewInfo');
-    const infoForm = document.getElementById('infoForm');
-    const passwordForm = document.getElementById('passwordForm');
-    
-    if (!formType) {
-        // 取消按钮被点击，清除 session 中的状态
-        fetch("{{ url_for('auth.profile') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({clear_form: true})
-        });
-        
-        viewInfo.classList.remove('hidden');
-        infoForm.classList.remove('active');
-        passwordForm.classList.remove('active');
-        return;
-    }
-    
-    // 设置 session 状态
-    fetch("{{ url_for('auth.profile') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            set_form_type: true,
-            form_type: formType
-        })
-    });
-    
-    viewInfo.classList.add('hidden');
-    if (formType === 'info') {
-        infoForm.classList.add('active');
-        passwordForm.classList.remove('active');
-    } else {
-        passwordForm.classList.add('active');
-        infoForm.classList.remove('active');
-    }
-}
+    function toggleEdit(formType) {
+        const viewInfo = document.getElementById('viewInfo');
+        const infoForm = document.getElementById('infoForm');
+        const passwordForm = document.getElementById('passwordForm');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const formType = '{{ form_type if form_type else "" }}';
-    if (formType) {
-        toggleEdit(formType);
+        if (!formType) {
+            // 清除状态并回到查看信息
+            localStorage.removeItem('form_type');
+
+            viewInfo.classList.remove('hidden');
+            infoForm.classList.remove('active');
+            passwordForm.classList.remove('active');
+            return;
+        }
+
+        // 保存当前表单状态到 LocalStorage
+        localStorage.setItem('form_type', formType);
+
+        // 切换表单显示
+        viewInfo.classList.add('hidden');
+        if (formType === 'info') {
+            infoForm.classList.add('active');
+            passwordForm.classList.remove('active');
+        } else {
+            passwordForm.classList.add('active');
+            infoForm.classList.remove('active');
+        }
     }
-});
+
+    // 页面加载时检查是否需要显示表单
+    document.addEventListener('DOMContentLoaded', function() {
+        // 检查是否有成功消息
+        const hasSuccessMessage = "{{ 'true' if get_flashed_messages(category_filter=['success']) else 'false' }}" === 'true';
+        
+        if (hasSuccessMessage) {
+            // 如果有成功消息，清除状态并显示查看信息
+            localStorage.removeItem('form_type');
+            return;
+        }
+        
+        // 否则从 LocalStorage 恢复状态
+        const formType = localStorage.getItem('form_type');
+        if (formType) {
+            toggleEdit(formType);
+        }
+    });
+
+    // 监听导航栏链接点击事件
+    document.querySelectorAll('.navbar-nav a').forEach(link => {
+        link.addEventListener('click', function() {
+            localStorage.removeItem('form_type');
+        });
+    });
 </script>
 {% endblock %}
-{% endblock %} 
+{% endblock %}
